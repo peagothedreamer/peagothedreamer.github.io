@@ -12,8 +12,10 @@
           data-reactions-enabled="1"
           data-emit-metadata="0"
           data-input-position="top"
-          {{/* 换成 "preferred_color_scheme" 即可退回 GitHub 原生外观 */}}
-          data-theme="{{ absURL "css/giscus.css" }}"
+          {{/* giscus 内置主题。fro：衬线、无边框输入框、隐藏输入/预览切换。
+               fro 自带 @media (prefers-color-scheme: dark)，明暗都跟系统。
+               换 "preferred_color_scheme" 即退回 GitHub 原生外观。 */}}
+          data-theme="fro"
           data-lang="zh-CN"
           data-loading="lazy"
           crossorigin="anonymous"
