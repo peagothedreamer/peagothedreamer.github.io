@@ -148,6 +148,28 @@ section p { margin: 0 0 0.25rem; max-width: 34em; }
 .contact dt { color: var(--dim); }
 .contact dd { margin: 0; }
 
+/* 微信号：点一下复制。看着跟隔壁两个链接一样，语义上是按钮。
+   类名避开 .copy —— 那是页脚版权的。 */
+.copy-id {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: var(--dim);
+  text-underline-offset: 0.3em;
+}
+.copy-id:hover { text-decoration-color: currentColor; }
+.copy-id.copied::after {
+  content: "已复制";
+  display: inline-block;   /* 原子化内联盒，才不会继承按钮那条下划线 */
+  margin-left: 0.75ch;     /* 前导空格会被 inline-block 折叠，所以用 margin */
+  color: var(--dim);
+  font-size: 0.8125rem;
+}
+
 /* footer */
 footer { padding-block: 2rem 3rem; color: var(--dim); font-size: 0.875rem; }
 .banner { display: block; margin: 0 0 1.25rem; }
