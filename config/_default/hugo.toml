@@ -3,6 +3,7 @@ locale = 'zh-cn'
 title = 'peago · 空想家'
 publishDir = 'docs'
 enableRobotsTXT = true
+cleanDestinationDir = true
 
 # 没用到 tags / categories，不生成空的归档页。
 # 注意：这两行必须在任何 [table] 之前，否则会被吞进上面那个表里。
