@@ -1,0 +1,4 @@
+# `hugo server` 跑在 development 环境：预览输出写到 public/（已 gitignore），
+# 避免污染 docs/ —— 那是给 GitHub Pages 用的生产输出。
+# 生产构建 `hugo` 不读这个文件，仍然写 docs/。
+publishDir = 'public'
