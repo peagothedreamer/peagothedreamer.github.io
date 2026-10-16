@@ -1,0 +1,120 @@
+/* 评论区主题：把 giscus 重绘成站点自己的等宽 / 直角 / 无阴影调子。
+   通过 data-theme 的 URL 注入到 giscus 的 iframe 内部 —— 本站 style.css 碰不到那里，
+   所以配色要在两份文件里各写一遍，改站点配色时别忘了这里。
+   明暗由下面的 media query 自己切，不依赖 giscus 的 preferred_color_scheme。 */
+
+:root, main {
+  --ascii-bg: #fdfdfc;
+  --ascii-fg: #17191c;
+  --ascii-fg-soft: #3d434a;   /* 主按钮 hover，只在这里用 */
+  --ascii-dim: #6c7278;
+  --ascii-line: rgba(127, 127, 127, 0.35);
+  --ascii-line-faint: rgba(127, 127, 127, 0.18);
+  --ascii-tint: rgba(127, 127, 127, 0.07);
+  --ascii-hover: rgba(127, 127, 127, 0.14);
+
+  --ascii-mono: "Cascadia Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo,
+                "JetBrains Mono", Consolas, "DejaVu Sans Mono",
+                "Sarasa Mono SC", "Noto Sans Mono CJK SC", "Microsoft YaHei Mono",
+                "Microsoft YaHei", monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root, main {
+    --ascii-bg: #0c0d0f;
+    --ascii-fg: #e7e7e4;
+    --ascii-fg-soft: #c6c6c2;
+    --ascii-dim: #8b9199;
+  }
+}
+
+/* GitHub Primer 变量 → 站点配色。映射只写一遍，明暗靠上面的变量切换。 */
+main {
+  --color-fg-default: var(--ascii-fg);
+  --color-fg-muted: var(--ascii-dim);
+  --color-fg-subtle: var(--ascii-dim);
+  --color-canvas-default: var(--ascii-bg);
+  --color-canvas-overlay: var(--ascii-bg);
+  --color-canvas-inset: var(--ascii-tint);
+  --color-canvas-subtle: var(--ascii-tint);
+  --color-border-default: var(--ascii-line);
+  --color-border-muted: var(--ascii-line-faint);
+  --color-neutral-muted: var(--ascii-hover);
+  --color-accent-fg: var(--ascii-fg);
+  --color-accent-emphasis: var(--ascii-fg);
+  --color-accent-muted: var(--ascii-line);
+  --color-accent-subtle: var(--ascii-tint);
+  --color-success-fg: var(--ascii-dim);
+  --color-attention-fg: var(--ascii-dim);
+  --color-attention-muted: var(--ascii-line);
+  --color-attention-subtle: var(--ascii-tint);
+  --color-danger-fg: var(--ascii-fg);
+  --color-danger-muted: var(--ascii-line);
+  --color-danger-subtle: var(--ascii-tint);
+
+  --color-btn-text: var(--ascii-fg);
+  --color-btn-bg: transparent;
+  --color-btn-border: var(--ascii-line);
+  --color-btn-hover-bg: var(--ascii-hover);
+  --color-btn-hover-border: var(--ascii-fg);
+  --color-btn-active-bg: var(--ascii-hover);
+  --color-btn-active-border: var(--ascii-fg);
+  --color-btn-selected-bg: var(--ascii-hover);
+  --color-btn-primary-text: var(--ascii-bg);
+  --color-btn-primary-bg: var(--ascii-fg);
+  --color-btn-primary-border: var(--ascii-fg);
+  --color-btn-primary-hover-bg: var(--ascii-fg-soft);
+  --color-btn-primary-hover-border: var(--ascii-fg-soft);
+  --color-btn-primary-selected-bg: var(--ascii-fg-soft);
+  --color-btn-primary-disabled-text: var(--ascii-dim);
+  --color-btn-primary-disabled-bg: var(--ascii-line);
+  --color-btn-primary-disabled-border: var(--ascii-line);
+
+  --color-action-list-item-default-hover-bg: var(--ascii-hover);
+  --color-segmented-control-bg: var(--ascii-tint);
+  --color-segmented-control-button-bg: var(--ascii-bg);
+  --color-segmented-control-button-selected-border: var(--ascii-dim);
+  --color-social-reaction-bg-hover: var(--ascii-hover);
+  --color-social-reaction-bg-reacted-hover: var(--ascii-line);
+
+  /* 扁平的 ASCII 调子：全部投影归零 */
+  --color-btn-shadow: 0 0 transparent;
+  --color-btn-inset-shadow: 0 0 transparent;
+  --color-btn-primary-shadow: 0 0 transparent;
+  --color-btn-primary-inset-shadow: 0 0 transparent;
+  --color-btn-primary-selected-shadow: 0 0 transparent;
+  --color-primer-shadow-inset: 0 0 transparent;
+
+  /* ponytail: 没搬 --color-prettylights-syntax-*（64 行）。评论里的代码块会退化成
+     单色。想恢复语法高亮，把 giscus 上游 light.css / dark.css 里那两段贴进来。 */
+}
+
+/* 直角 —— 全站没有一个圆角。用 !important 是因为 giscus 的 Svelte 组件样式
+   注入顺序不确定，没法靠选择器权重赢。影响仅限这个 iframe 内部。 */
+*,
+*::before,
+*::after { border-radius: 0 !important; }
+
+/* 等宽 —— 站点只有这一种字体 */
+body, main, button, input, textarea, select, summary, a, code, pre, kbd, samp {
+  font-family: var(--ascii-mono) !important;
+}
+
+/* giscus 默认把表情行居中，整站都是左对齐，改过来 */
+main .gsc-reactions { justify-content: flex-start !important; }
+
+/* giscus 自带的加载动画/分页图指向 GitHub 的图片，明暗各一张，得跟着切 */
+main .pagination-loader-container {
+  background-image: url("https://github.com/images/modules/pulls/progressive-disclosure-line.svg");
+}
+main .gsc-loading-image {
+  background-image: url("https://github.githubassets.com/images/mona-loading-default.gif");
+}
+@media (prefers-color-scheme: dark) {
+  main .pagination-loader-container {
+    background-image: url("https://github.com/images/modules/pulls/progressive-disclosure-line-dark.svg");
+  }
+  main .gsc-loading-image {
+    background-image: url("https://github.githubassets.com/images/mona-loading-dark.gif");
+  }
+}
