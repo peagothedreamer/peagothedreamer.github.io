@@ -1,0 +1,22 @@
+{{- /* giscus 评论。配置在 config/_default/hugo.toml 的 [params.giscus]；
+       整块删掉即可全站关闭评论。文章页和首页都用这一份。 */ -}}
+{{ with site.Params.giscus }}
+<section class="comments">
+  <script src="https://giscus.app/client.js"
+          data-repo="{{ .repo }}"
+          data-repo-id="{{ .repoId }}"
+          data-category="{{ .category }}"
+          data-category-id="{{ .categoryId }}"
+          data-mapping="pathname"
+          data-strict="0"
+          data-reactions-enabled="1"
+          data-emit-metadata="0"
+          data-input-position="top"
+          data-theme="preferred_color_scheme"
+          data-lang="zh-CN"
+          data-loading="lazy"
+          crossorigin="anonymous"
+          async>
+  </script>
+</section>
+{{ end }}
