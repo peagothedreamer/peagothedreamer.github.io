@@ -1,0 +1,24 @@
+baseURL = 'https://peagothedreamer.github.io/'
+locale = 'zh-cn'
+title = 'peago · 空想家'
+publishDir = 'docs'
+enableRobotsTXT = true
+
+# 没用到 tags / categories，不生成空的归档页。
+# 注意：这两行必须在任何 [table] 之前，否则会被吞进上面那个表里。
+# 以后想用标签，删掉这行，并在文章开头加 tags = ['xxx']。
+disableKinds = ['taxonomy', 'term']
+
+[minify]
+  minifyOutput = true
+
+[params]
+  description = 'peago（管云哲）的个人主页。浙江大学 电子科学与技术，大二在读。方向：学习 / 投资 / 音乐。'
+
+# 文章页底部的评论（giscus，数据存在本仓库的 Discussions 里）。
+# 整块删掉即可关闭评论；[params.giscus] 必须留在 [params] 之后。
+[params.giscus]
+  repo = 'peagothedreamer/peagothedreamer.github.io'
+  repoId = 'R_kgDOVMHt5A'
+  category = 'Announcements'
+  categoryId = 'DIC_kwDOVMHt5M4DIoie'

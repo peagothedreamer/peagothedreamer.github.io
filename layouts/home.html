@@ -1,27 +1,4 @@
-<!doctype html>
-<html lang="zh-CN">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>peago · 空想家</title>
-<meta name="description" content="peago（管云哲）的个人主页。浙江大学 电子科学与技术，大二在读。方向：学习 / 投资 / 音乐。">
-<link rel="stylesheet" href="style.css">
-</head>
-<body id="top">
-
-<header class="nav">
-  <div class="wrap">
-    <a class="mark" href="#top" aria-label="peago · 回到顶部"><span aria-hidden="true">&gt;_</span></a>
-    <nav aria-label="页面导航">
-      <ul>
-        <li><a href="#about">about</a></li>
-        <li><a href="#projects">projects</a></li>
-        <li><a href="#contact">contact</a></li>
-      </ul>
-    </nav>
-  </div>
-</header>
-
+{{ define "main" }}
 <main class="wrap">
 
   <section class="hero">
@@ -48,9 +25,9 @@
     <h2>projects</h2>
     <pre class="tree-root" aria-hidden="true">.</pre>
     <ul class="tree">
-      <li><span class="br" aria-hidden="true">├── learning/</span><span class="note">学习 · 资源、笔记</span></li>
-      <li><span class="br" aria-hidden="true">├── investing/</span><span class="note">投资 · 记录与复盘</span></li>
-      <li><span class="br" aria-hidden="true">└── music/</span><span class="note">音乐 · 专辑分享</span></li>
+      <li><a class="br" href="{{ with site.GetPage "learning" }}{{ .RelPermalink }}{{ end }}">├── learning/</a><span class="note">学习 · 资源、笔记</span></li>
+      <li><a class="br" href="{{ with site.GetPage "investing" }}{{ .RelPermalink }}{{ end }}">├── investing/</a><span class="note">投资 · 记录与复盘</span></li>
+      <li><a class="br" href="{{ with site.GetPage "music" }}{{ .RelPermalink }}{{ end }}">└── music/</a><span class="note">音乐 · 专辑分享</span></li>
     </ul>
   </section>
 
@@ -62,7 +39,7 @@
       <dt>email</dt>
       <dd><a href="mailto:peago@foxmail.com">[peago@foxmail.com]</a></dd>
       <dt>github</dt>
-      <dd><a href="https://github.com/peagooo">[github.com/peagooo]</a></dd>
+      <dd><a href="https://github.com/peagothedreamer">[github.com/peagothedreamer]</a></dd>
       <dt>wechat</dt>
       <dd><a href="wx:peagothedreamer">peagothedreamer</a></dd>
     </dl>
@@ -71,21 +48,4 @@
   <div class="rule" aria-hidden="true">────────────────────────────────────────────────────────────────────────────────</div>
 
 </main>
-
-<footer>
-  <div class="wrap">
-    <picture class="banner">
-      <source media="(prefers-color-scheme: dark)" srcset="https://ascii.rest/banner/peago.dark.svg?font=bold&tagline=the%20dreamer">
-      <img alt="peago — the dreamer" src="https://ascii.rest/banner/peago.svg?font=bold&tagline=the%20dreamer" width="690" height="216" loading="lazy" decoding="async">
-    </picture>
-    <p class="copy">© <span id="year">2026</span> peago</p>
-  </div>
-</footer>
-
-<script>
-  document.getElementById("year").textContent = new Date().getFullYear();
-</script>
-<script type="module" src="https://ascii.rest/ascii.js"></script>
-
-</body>
-</html>
+{{ end }}

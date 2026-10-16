@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} · {{ site.Title }}{{ end }}</title>
+<meta name="description" content="{{ with .Params.description }}{{ . }}{{ else }}{{ site.Params.description }}{{ end }}">
+<link rel="stylesheet" href="{{ "css/style.css" | relURL }}">
+</head>
+<body id="top">
+
+<header class="nav">
+  <div class="wrap">
+    <a class="mark" href="{{ site.Home.RelPermalink }}" aria-label="peago · 回到首页"><span aria-hidden="true">&gt;_</span></a>
+    <nav aria-label="页面导航">
+      <ul>
+        <li><a href="{{ site.Home.RelPermalink }}#about">about</a></li>
+        <li><a href="{{ site.Home.RelPermalink }}#projects">projects</a></li>
+        <li><a href="{{ site.Home.RelPermalink }}#contact">contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+{{ block "main" . }}{{ end }}
+
+<footer>
+  <div class="wrap">
+    <picture class="banner">
+      <source media="(prefers-color-scheme: dark)" srcset="https://ascii.rest/banner/peago.dark.svg?font=bold&tagline=the%20dreamer">
+      <img alt="peago — the dreamer" src="https://ascii.rest/banner/peago.svg?font=bold&tagline=the%20dreamer" width="690" height="216" loading="lazy" decoding="async">
+    </picture>
+    <p class="copy">© <span id="year">2026</span> peago</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+{{ if or .IsHome .Params.ascii }}<script type="module" src="https://ascii.rest/ascii.js"></script>{{ end }}
+
+</body>
+</html>

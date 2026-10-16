@@ -1,0 +1,24 @@
+{{ define "main" }}
+<div class="wrap">
+  <div class="page">
+    <div class="page-head">
+      <h1 class="page-title">{{ .Title }}</h1>
+      {{ with .Params.ascii }}<ascii-art class="page-art" piece="{{ . }}" aria-hidden="true"></ascii-art>{{ end }}
+    </div>
+    {{ with .Content }}<div class="prose">{{ . }}</div>{{ end }}
+
+    <ul class="posts">
+      {{ range .Pages }}
+      <li>
+        <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+        {{ if not .Date.IsZero }}<time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006-01-02" }}</time>{{ end }}
+      </li>
+      {{ else }}
+      <li class="empty">这一区还没有内容</li>
+      {{ end }}
+    </ul>
+
+    <p class="back"><a href="{{ site.Home.RelPermalink }}">← 回到首页</a></p>
+  </div>
+</div>
+{{ end }}

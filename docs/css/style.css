@@ -153,3 +153,111 @@ footer { padding-block: 2rem 3rem; color: var(--dim); font-size: 0.875rem; }
 @media (prefers-reduced-motion: reduce) {
   .cursor { animation: none; }
 }
+
+/* ---- inner pages: section lists + articles ---- */
+.page { padding-block: clamp(2.5rem, 9vh, 4.5rem) 2rem; }
+.page-title {
+  margin: 0 0 1.75rem;
+  font-size: clamp(1.75rem, 6vw, 2.5rem);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.meta { margin: 0 0 2.5rem; color: var(--dim); font-size: 0.875rem; }
+.meta .tags::before { content: " · "; }
+
+/* article body */
+.prose { max-width: 38em; }
+.prose > :first-child { margin-top: 0; }
+.prose > :last-child { margin-bottom: 0; }
+.prose h2 {
+  margin: 2.75rem 0 1rem;
+  color: var(--fg);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.prose h3 { margin: 2rem 0 0.75rem; font-size: 1rem; font-weight: 600; }
+.prose ul, .prose ol { margin: 1rem 0; padding-left: 2ch; }
+.prose li { margin: 0.3rem 0; }
+.prose blockquote {
+  margin: 1.75rem 0;
+  padding-left: 1.5ch;
+  border-left: 2px solid var(--dim);
+  color: var(--dim);
+}
+.prose pre {
+  margin: 1.5rem 0;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  background: rgba(127, 127, 127, 0.1);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+.prose code { font-family: var(--mono); font-size: 0.9375em; }
+.prose :not(pre) > code {
+  padding: 0.1em 0.35em;
+  background: rgba(127, 127, 127, 0.14);
+}
+.prose img { max-width: 100%; height: auto; }
+.prose table { border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9375rem; }
+.prose th, .prose td {
+  padding: 0.35rem 0.75rem;
+  border: 1px solid rgba(127, 127, 127, 0.3);
+  text-align: left;
+}
+.prose hr { margin: 2.75rem 0; border: 0; border-top: 1px solid rgba(127, 127, 127, 0.3); }
+
+/* post list */
+.posts { margin: 1.75rem 0 0; padding: 0; list-style: none; }
+.posts li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.5ch;
+  padding-block: 0.6rem;
+  border-bottom: 1px solid rgba(127, 127, 127, 0.18);
+}
+.posts a { text-decoration: none; }
+.posts a:hover { text-decoration: underline; }
+.posts time { color: var(--dim); font-size: 0.8125rem; white-space: nowrap; }
+.posts .empty { justify-content: flex-start; color: var(--dim); }
+
+.back { margin: 3rem 0 0; font-size: 0.9375rem; }
+.back a { color: var(--dim); text-decoration: none; }
+.back a:hover { color: var(--fg); }
+
+/* landing-page file tree is clickable now */
+.tree a { color: inherit; text-decoration: none; }
+.tree a:hover { color: var(--fg); }
+
+/* section title line: title left, optional ascii piece right */
+.page-head {
+  display: flex;
+  flex-wrap: wrap;          /* narrow screens: the piece drops below the title */
+  align-items: center;
+  justify-content: space-between;
+  gap: 2ch;
+  margin: 0 0 1.75rem;
+}
+.page-head .page-title { margin: 0; }
+
+/* An <ascii-art> piece in the title line — music/ shows "vinyl".
+   The piece draws 64x25 text cells, so font-size scales the whole thing:
+   0.5rem ≈ 282x240px. colour: var(--dim) keeps it behind the title. */
+.page-art {
+  flex: none;
+  font-size: 0.5rem;
+  color: var(--dim);
+}
+
+@media (max-width: 34rem) {
+  .page-art { font-size: 0.375rem; }   /* ≈ 212x180px */
+}
+
+/* giscus comments — article pages only */
+.comments {
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(127, 127, 127, 0.18);
+}
