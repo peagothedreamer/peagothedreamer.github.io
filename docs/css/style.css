@@ -7,6 +7,10 @@
           "JetBrains Mono", Consolas, "DejaVu Sans Mono",
           "Sarasa Mono SC", "Noto Sans Mono CJK SC", "Microsoft YaHei Mono",
           "Microsoft YaHei", monospace;
+  /* 文章正文的衬线。故意跟 giscus 的 fro 主题用同一条栈，正文和评论区字体一致。
+     没有 webfont：拉丁取系统衬线（Win 上是 Georgia），中文由系统补衬线字
+     （Win 上是 SimSun/宋体）。所以不同系统看到的不完全一样，这是取舍。 */
+  --serif: ui-serif, "Georgia", "Cambria", "Times New Roman", "Times", serif;
   --measure: 46rem;
   --pad: 1.5rem;
 }
@@ -166,8 +170,8 @@ footer { padding-block: 2rem 3rem; color: var(--dim); font-size: 0.875rem; }
 .meta { margin: 0 0 2.5rem; color: var(--dim); font-size: 0.875rem; }
 .meta .tags::before { content: " · "; }
 
-/* article body */
-.prose { max-width: 38em; }
+/* article body —— 正文用衬线，界面和 ASCII 装饰仍归等宽 */
+.prose { max-width: 38em; font-family: var(--serif); }
 .prose > :first-child { margin-top: 0; }
 .prose > :last-child { margin-bottom: 0; }
 .prose h2 {
@@ -190,6 +194,7 @@ footer { padding-block: 2rem 3rem; color: var(--dim); font-size: 0.875rem; }
   margin: 1.5rem 0;
   padding: 1rem 1.25rem;
   overflow-x: auto;
+  font-family: var(--mono);   /* 正文是衬线，代码块得显式钉回等宽 */
   background: rgba(127, 127, 127, 0.1);
   font-size: 0.875rem;
   line-height: 1.6;
