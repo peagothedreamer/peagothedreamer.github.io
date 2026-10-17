@@ -221,7 +221,7 @@ footer { padding-block: 2rem 3rem; color: var(--dim); font-size: 0.875rem; }
 .prose h2, .prose h3, .prose h4 { scroll-margin-top: 6rem; }
 
 /* article body —— 正文用衬线，界面和 ASCII 装饰仍归等宽 */
-.prose { max-width: 38em; font-family: var(--serif); }
+.prose { max-width: 38em; font-family: var(--serif); overflow-wrap: anywhere; }
 .prose > :first-child { margin-top: 0; }
 .prose > :last-child { margin-bottom: 0; }
 .prose h2 {
