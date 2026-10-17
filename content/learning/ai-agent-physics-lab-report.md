@@ -1,5 +1,6 @@
 +++
 title = 'AI Agent + 大物实验报告工作流'
+aliases = ['/learning/AI-Agent-大物实验报告工作流/']
 date = 2026-10-17
 +++
 

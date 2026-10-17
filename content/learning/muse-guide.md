@@ -1,5 +1,6 @@
 +++
 title = 'Muse使用指南'
+aliases = ['/learning/Muse使用指南/']
 date = 2026-10-16
 +++
 

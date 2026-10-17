@@ -1,5 +1,6 @@
 +++
 title = '豪气冲天文案'
+aliases = ['/prattling/豪气冲天文案/']
 date = 2026-10-16
 +++
 

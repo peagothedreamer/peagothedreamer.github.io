@@ -1,5 +1,6 @@
 +++
 title = '大盘估值分位监控'
+aliases = ['/investing/大盘估值分位监控/']
 date = 2026-10-16
 description = '用趋势偏离、VIX 分位、股权风险溢价和 CNN 恐惧贪婪指数合成 0–100 的买点评分。'
 +++
