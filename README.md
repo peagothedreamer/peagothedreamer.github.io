@@ -5,6 +5,6 @@
 
 # peago · 空想家
 
-浙江大学 电子科学与技术 · 学习 / 投资 / 音乐
+浙江大学 电子科学与技术 · 学习 / 投资 / 胡思乱想
 
 **[peagothedreamer.github.io](https://peagothedreamer.github.io)**

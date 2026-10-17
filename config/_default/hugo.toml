@@ -14,7 +14,7 @@ disableKinds = ['taxonomy', 'term']
   minifyOutput = true
 
 [params]
-  description = 'peago（管云哲）的个人主页。浙江大学 电子科学与技术，大二在读。方向：学习 / 投资 / 音乐。'
+  description = 'peago（管云哲）的个人主页。浙江大学 电子科学与技术，大二在读。方向：学习 / 投资 / 胡思乱想。'
 
   # 专辑 mp3 的存放处：所有专辑共用一个 GitHub Release，资产名是平铺的，
   # 所以文件名带专辑前缀（counting-stars-01-secrets.mp3）。

@@ -6,3 +6,5 @@ resources/
 # 音频一律不进仓库（11MB 一首，Pages 站点是 1GB 软上限，克隆也难受）。
 # mp3 传 GitHub Releases，正文里写完整 URL；封面几十 KB，照常进仓库。
 *.mp3
+
+__pycache__/

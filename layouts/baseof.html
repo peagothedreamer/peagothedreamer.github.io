@@ -3,9 +3,36 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} · {{ site.Title }}{{ end }}</title>
-<meta name="description" content="{{ with .Params.description }}{{ . }}{{ else }}{{ site.Params.description }}{{ end }}">
+<title>{{ if .IsHome }}{{ site.Title }}{{ else if eq .Kind "404" }}页面不存在 · {{ site.Title }}{{ else }}{{ .Title }} · {{ site.Title }}{{ end }}</title>
+{{- $desc := site.Params.description -}}
+{{- with .Params.description }}{{ $desc = . }}{{ else }}{{ if and .IsPage .Summary }}{{ $desc = .Summary | plainify | htmlUnescape | replaceRE `\s+` " " | chomp | truncate 110 }}{{ end }}{{ end }}
+<meta name="description" content="{{ $desc }}">
+{{- if ne .Kind "404" }}
+<link rel="canonical" href="{{ .Permalink }}">
+{{- end }}
+<link rel="icon" href="{{ "favicon.svg" | relURL }}" type="image/svg+xml">
 <link rel="stylesheet" href="{{ "css/style.css" | relURL }}">
+{{- with .OutputFormats.Get "rss" }}
+<link rel="alternate" type="application/rss+xml" href="{{ .Permalink }}" title="{{ site.Title }}">
+{{- else }}
+<link rel="alternate" type="application/rss+xml" href="{{ "index.xml" | absURL }}" title="{{ site.Title }}">
+{{- end }}
+<meta name="theme-color" content="#fdfdfc" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0c0d0f" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
+<meta property="og:title" content="{{ if .IsHome }}{{ site.Title }}{{ else if eq .Kind "404" }}页面不存在{{ else }}{{ .Title }}{{ end }}">
+<meta property="og:description" content="{{ $desc }}">
+<meta property="og:url" content="{{ .Permalink }}">
+<meta property="og:site_name" content="{{ site.Title }}">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="{{ "og.png" | absURL }}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="{{ site.Title }}">
+{{- if and .IsPage (not .Date.IsZero) }}
+<meta property="article:published_time" content="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">
+{{- end }}
+<meta name="twitter:card" content="summary_large_image">
 </head>
 <body id="top">
 
@@ -49,7 +76,7 @@
   });
 </script>
 {{ if .HasShortcode "audio" }}<script src="{{ "js/player.js" | relURL }}" defer></script>{{ end }}
-{{ if or .IsHome .Params.ascii }}<script type="module" src="https://ascii.rest/ascii.js"></script>{{ end }}
+{{ if or .IsHome .Params.ascii (eq .Kind "404") }}<script type="module" src="https://ascii.rest/ascii.js"></script>{{ end }}
 
 </body>
 </html>

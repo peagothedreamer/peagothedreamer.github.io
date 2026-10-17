@@ -1,0 +1,47 @@
+name: update-valuation
+
+on:
+  schedule:
+    # 美股收盘（21:00/20:00 UTC）之后，等 Yahoo 日线落定再跑。
+    - cron: '17 22 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-valuation
+  cancel-in-progress: true
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Fetch market data
+        run: python tools/update-valuation.py
+
+      - uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: '0.168.0'
+          extended: true
+
+      - name: Build site
+        run: hugo --quiet
+
+      - name: Commit data and rebuilt site
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add static/data/valuation.json docs
+          if git diff --cached --quiet; then
+            echo "no changes"
+          else
+            git commit -m "data: 更新估值快照 $(date -u +%F)"
+            git push
+          fi

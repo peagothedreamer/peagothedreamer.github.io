@@ -1,0 +1,317 @@
+{{/* 大盘估值分位监控面板。正文里写：
+     {{< valuation-dashboard >}}
+
+   数据全部在下面这段 JS 的 S 对象里，改数据只改那一处；分数、结论、
+   表格、来源说明都由它推导。样式作用域限定在 .valuation 内，不碰站点主题。
+   估值口径：TTM PE 为锚，前瞻 PE 按 forwardEpsGrowth 推算，避免两个
+   PE 数字互相打架（原稿 19.0 与 28.5 隐含 50% 增长）。 */}}
+<div class="valuation" id="vd">
+<style>
+.valuation{font-family:var(--mono);font-size:.9375rem;line-height:1.6;color:var(--fg);margin:1.5rem 0}
+.valuation *{box-sizing:border-box}
+.valuation p{margin:0;max-width:none}
+.valuation .vd-topline{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:.5rem 1rem;color:var(--dim);font-size:.75rem;margin:0 0 .75rem}
+.valuation .vd-topline b{color:var(--fg);font-weight:600}
+.valuation .vd-verdict{background:rgba(127,127,127,.07);border:1px solid rgba(127,127,127,.3);border-left:4px solid var(--fg);padding:.75rem .875rem;border-radius:8px;font-size:.9375rem;line-height:1.65;margin:0 0 1rem}
+.valuation .vd-scorewrap{text-align:center;padding:.25rem 0 0}
+.valuation .vd-score{font-size:3.5rem;font-weight:800;line-height:1;color:var(--fg)}
+.valuation .vd-scorelabel{color:var(--dim);font-size:.75rem;margin-top:.25rem}
+.valuation .vd-gauge{height:10px;border-radius:5px;background:linear-gradient(90deg,rgba(127,127,127,.2),rgba(127,127,127,.75));position:relative;margin:.75rem 0 .25rem}
+.valuation .vd-gauge i,.valuation .vd-bar i{position:absolute;top:-4px;width:4px;height:18px;background:var(--fg);border-radius:2px;box-shadow:0 0 0 2px var(--bg);transform:translateX(-50%)}
+.valuation .vd-labels{display:flex;justify-content:space-between;font-size:.6875rem;color:var(--dim)}
+.valuation .vd-card{background:rgba(127,127,127,.06);border:1px solid rgba(127,127,127,.28);border-radius:10px;padding:1rem;margin:1rem 0}
+.valuation .vd-card h3{margin:0 0 .5rem;font-size:.9375rem;line-height:1.4;font-weight:600;color:var(--fg)}
+.valuation .vd-big{font-size:1.5rem;font-weight:700}
+.valuation .vd-muted{color:var(--dim);font-size:.75rem;line-height:1.65;margin-top:.375rem}
+.valuation .vd-bar{height:8px;border-radius:4px;background:linear-gradient(90deg,rgba(127,127,127,.2),rgba(127,127,127,.75));position:relative;margin:.625rem 0 .25rem}
+.valuation .vd-barlabels{display:flex;justify-content:space-between;gap:.375rem;font-size:.6875rem;color:var(--dim)}
+.valuation .vd-btns{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem}
+.valuation .vd-btn{background:transparent;color:var(--fg);border:1px solid rgba(127,127,127,.4);border-radius:6px;padding:.5rem 0;cursor:pointer;font:inherit;font-size:.8125rem;min-height:2.5rem}
+.valuation .vd-btn.on{background:var(--fg);border-color:var(--fg);color:var(--bg)}
+.valuation .vd-tablewrap{overflow-x:auto}
+.valuation table{width:100%;border-collapse:collapse;margin:.25rem 0 0;font-size:.8125rem}
+.valuation th,.valuation td{border-bottom:1px solid rgba(127,127,127,.22);padding:.45rem .35rem;text-align:left;vertical-align:top}
+.valuation th{color:var(--dim);font-weight:500}
+.valuation .vd-kv{display:flex;justify-content:space-between;gap:.75rem;padding:.35rem 0;border-bottom:1px solid rgba(127,127,127,.22)}
+.valuation .vd-kv:last-child{border-bottom:0}
+.valuation .vd-src{display:block;color:var(--dim);font-size:.6875rem;line-height:1.5;font-weight:400;margin-top:.125rem}
+.valuation .vd-metric{padding:.625rem 0;border-bottom:1px solid rgba(127,127,127,.22)}
+.valuation .vd-metric:last-child{border-bottom:0;padding-bottom:0}
+.valuation .vd-metrichead{display:flex;justify-content:space-between;align-items:baseline;gap:.625rem;flex-wrap:wrap}
+.valuation a{color:inherit}
+@media(max-width:30rem){.valuation .vd-score{font-size:3rem}.valuation .vd-card{padding:.75rem}}
+</style>
+
+<div class="vd-topline"><span id="vd-asof"></span><b id="vd-scoremini">—</b></div>
+<div class="vd-verdict" id="vd-verdict">加载中…</div>
+
+<div class="vd-scorewrap"><div class="vd-score" id="vd-score">—</div><div class="vd-scorelabel">买点评分 0–100（越高越值得买）</div></div>
+<div class="vd-gauge"><i id="vd-gauge" style="left:50%"></i></div>
+<div class="vd-labels"><span>0 极贵/贪婪</span><span>50 中性</span><span>100 极便宜/恐惧</span></div>
+
+<div class="vd-card"><h3>回看窗口</h3>
+<div class="vd-btns" id="vd-wins"><button class="vd-btn" data-w="1">1年</button><button class="vd-btn on" data-w="3">3年</button><button class="vd-btn" data-w="5">5年</button><button class="vd-btn" data-w="10">10年</button></div>
+<p class="vd-muted">切换后趋势偏离分位、VIX 分位与买点评分按该窗口重算；估值/情绪为当前截面，不随窗口变。</p>
+<p class="vd-muted" id="vd-refresh"></p></div>
+
+<div class="vd-card"><h3>① 趋势/波动层 <span class="vd-src" id="vd-trendsrc"></span></h3>
+<p class="vd-muted">方法：SPX/NDX 对窗口内日收盘取对数做线性回归得趋势线，偏离 = 现价/趋势值−1，分位 = 窗口内“偏离≤当前偏离”的交易日占比（分位越高越贵）；VIX 为当前值在窗口内的取值分位（分位越高越恐慌）。条形统一为该项的买入子分：0 = 不构成买点，100 = 强买点。</p>
+<div id="vd-trend"></div></div>
+
+<div class="vd-card"><h3>② 估值层 · ERP（股权风险溢价）<span class="vd-src" id="vd-valsrc"></span></h3>
+<div id="vd-valrows"></div>
+<p class="vd-big" id="vd-erpbig" style="margin:.75rem 0 .25rem"></p>
+<p class="vd-muted" id="vd-erpnote"></p>
+<div class="vd-bar"><i id="vd-erpmark" style="left:0%"></i></div>
+<div class="vd-barlabels"><span>ERP −2% 贵</span><span id="vd-erpnow"></span><span>+3% 便宜</span></div></div>
+
+<div class="vd-card"><h3>③ 情绪层 · CNN 恐惧贪婪指数 <span class="vd-src" id="vd-fgsrc"></span></h3>
+<p style="margin:.25rem 0"><span class="vd-big" id="vd-fgval"></span> / 100 · <b id="vd-fglabel"></b></p>
+<div class="vd-bar"><i id="vd-fgmark" style="left:0%"></i></div>
+<div class="vd-barlabels"><span>0 极度恐惧</span><span>50 中性</span><span>100 极度贪婪</span></div>
+<p class="vd-muted" id="vd-fgnote"></p></div>
+
+<div class="vd-card"><h3>④ 买点评分拆解（可回溯复算）</h3>
+<div class="vd-tablewrap"><table id="vd-break"></table></div>
+<p class="vd-muted">判定带：0–25 偏贪婪/非买点｜25–50 中性偏贵｜50–75 有买点｜75–100 极端恐惧/大买点。</p></div>
+
+<div class="vd-card"><h3>评分权重（固定·写死）</h3>
+<div class="vd-kv"><span>标普趋势偏离（反向）</span><b>20%</b></div>
+<div class="vd-kv"><span>纳指100趋势偏离（反向）</span><b>15%</b></div>
+<div class="vd-kv"><span>VIX 分位</span><b>20%</b></div>
+<div class="vd-kv"><span>股权风险溢价 ERP</span><b>25%</b></div>
+<div class="vd-kv"><span>CNN恐惧贪婪（反向）</span><b>20%</b></div>
+<p class="vd-muted">合计100%。注意：VIX 与 CNN 恐惧贪婪高度相关（后者本身含 VIX 分项），标普与纳指趋势也高度相关——实际独立信息少于五项。无黑箱：上方“评分拆解”逐项可复算。</p></div>
+
+<div class="vd-card"><h3>数据源与使用说明</h3>
+<div id="vd-srclist"></div>
+<p class="vd-muted">参考：<a href="https://finance.yahoo.com">Yahoo Finance</a> · <a href="https://www.cnn.com/markets/fear-and-greed">CNN Fear &amp; Greed</a> · <a href="https://insight.factset.com">FactSet Insight</a></p>
+<p class="vd-muted">不构成投资建议。买卖决定请自行判断。</p></div>
+
+<script>
+'use strict';
+(function () {
+  /* ---------- 唯一数据源 ---------- */
+  var FALLBACK = {
+    asOf: '2026-10-16',
+    close: '美股收盘',
+    valuation: {
+      ttmPE: 26.12,             // TTM PE（内置快照；联网后由 multpl.com 覆盖）
+      ttmPEAsOf: '2026-10-16',
+      ttmPESource: 'multpl.com',
+      forwardEpsGrowth: 0.10,   // 前瞻 PE 的推算假设：未来 12 个月 EPS 增长
+      tenYearYield: 5.10,       // 10Y 美债收益率，%
+      tenYearAsOf: '2026-10-16'
+    },
+    sentiment: { fearGreed: 18, source: '用户提供', asOf: '2026-10-16' },
+    windows: {
+      1:  { spx: { price: 7645.67, deviation: -1.8, percentile: 14 }, ndx: { price: 29122.54, deviation: -4.8, percentile: 15 }, vix: { value: 20.2, percentile: 83 } },
+      3:  { spx: { price: 7645.67, deviation: -2.1, percentile: 22 }, ndx: { price: 29122.54, deviation: -2.9, percentile: 22 }, vix: { value: 20.2, percentile: 83 } },
+      5:  { spx: { price: 7645.67, deviation:  3.3, percentile: 66 }, ndx: { price: 29122.54, deviation:  2.1, percentile: 59 }, vix: { value: 20.2, percentile: 68 } },
+      10: { spx: { price: 7645.67, deviation:  7.9, percentile: 85 }, ndx: { price: 29122.54, deviation:  3.2, percentile: 66 }, vix: { value: 20.2, percentile: 70 } }
+    }
+  };
+  var S = FALLBACK;
+  var DATA_URL = '{{ "data/valuation.json" | relURL }}';
+
+  var W = { spx: 20, ndx: 15, vix: 20, erp: 25, fg: 20 };
+  var clamp = function (v) { return Math.max(0, Math.min(100, v)); };
+  var fmt1 = function (v) { return (v >= 0 ? '+' : '') + v.toFixed(1) + '%'; };
+  var fmt2 = function (v) { return (v >= 0 ? '+' : '') + v.toFixed(2) + '%'; };
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ---------- 派生指标（数据换了要重算） ---------- */
+  var V, ttmEY, fwdPE, fwdEY, erpTTM, erpFwd, ERP_SCORE, FG, FG_SCORE;
+  function compute() {
+    V = S.valuation;
+    ttmEY = 100 / V.ttmPE;
+    fwdPE = V.ttmPE / (1 + V.forwardEpsGrowth);
+    fwdEY = 100 / fwdPE;
+    erpTTM = ttmEY - V.tenYearYield;
+    erpFwd = fwdEY - V.tenYearYield;
+    ERP_SCORE = clamp((erpFwd + 2) / 5 * 100);   // −2%→0，+3%→100
+    FG = S.sentiment.fearGreed;
+    FG_SCORE = 100 - FG;
+  }
+
+  /* ---------- 评分 ---------- */
+  function partsFor(w) {
+    var d = S.windows[w];
+    return [
+      { name: '标普500 趋势偏离（反向）', raw: '偏离 ' + fmt1(d.spx.deviation) + ' · 分位 ' + d.spx.percentile, sub: clamp(100 - d.spx.percentile), weight: W.spx },
+      { name: '纳指100 趋势偏离（反向）', raw: '偏离 ' + fmt1(d.ndx.deviation) + ' · 分位 ' + d.ndx.percentile, sub: clamp(100 - d.ndx.percentile), weight: W.ndx },
+      { name: 'VIX 分位（高波动=恐惧）',  raw: 'VIX ' + d.vix.value.toFixed(1) + ' · 分位 ' + d.vix.percentile, sub: d.vix.percentile, weight: W.vix },
+      { name: '股权风险溢价 ERP',          raw: '前瞻 ' + fmt2(erpFwd), sub: ERP_SCORE, weight: W.erp },
+      { name: 'CNN 恐惧贪婪（反向）',      raw: FG + ' / 100', sub: FG_SCORE, weight: W.fg }
+    ];
+  }
+  function totalFor(w) {
+    return partsFor(w).reduce(function (s, p) { return s + p.sub * p.weight / 100; }, 0);
+  }
+
+  /* ---------- 文案 ---------- */
+  function fgLabel(v) {
+    if (v <= 25) return 'Extreme Fear（极度恐惧）';
+    if (v <= 45) return 'Fear（恐惧）';
+    if (v <= 55) return 'Neutral（中性）';
+    if (v <= 75) return 'Greed（贪婪）';
+    return 'Extreme Greed（极度贪婪）';
+  }
+  function band(t) {
+    if (t < 25) return '当前偏贪婪，不是买点';
+    if (t < 50) return '中性偏贵，谈不上恐惧买点';
+    if (t < 75) return '出现买点，但还不是极端恐惧';
+    return '极端恐惧，大买点';
+  }
+  function divergence(w) {
+    var d = S.windows[w];
+    var trend = (clamp(100 - d.spx.percentile) + clamp(100 - d.ndx.percentile)) / 2;
+    var senti = (d.vix.percentile + FG_SCORE) / 2;
+    if (senti - ERP_SCORE >= 15 && trend >= 50) return '情绪和趋势已偏恐惧，但估值（ERP）仍不便宜——属于贵市里的回调，不是低估。';
+    if (ERP_SCORE >= 60) return '估值本身也给出了安全边际。';
+    return '信号分歧不大，按仓位纪律分批即可。';
+  }
+
+  /* ---------- 渲染 ---------- */
+  function renderTrend(w) {
+    var d = S.windows[w];
+    var rows = [
+      { name: '标普500', value: d.spx.price.toLocaleString('en-US', { minimumFractionDigits: 2 }), desc: '偏离趋势 ' + fmt1(d.spx.deviation) + ' · 分位 ' + d.spx.percentile + '（越高越贵）', sub: clamp(100 - d.spx.percentile) },
+      { name: '纳指100', value: d.ndx.price.toLocaleString('en-US', { minimumFractionDigits: 2 }), desc: '偏离趋势 ' + fmt1(d.ndx.deviation) + ' · 分位 ' + d.ndx.percentile + '（越高越贵）', sub: clamp(100 - d.ndx.percentile) },
+      { name: 'VIX',     value: d.vix.value.toFixed(1), desc: '分位 ' + d.vix.percentile + '（越高越恐慌）', sub: d.vix.percentile }
+    ];
+    $('vd-trend').innerHTML = rows.map(function (r) {
+      return '<div class="vd-metric">' +
+        '<div class="vd-metrichead"><b>' + r.name + '</b><span class="vd-big" style="font-size:1.25rem">' + r.value + '</span></div>' +
+        '<div class="vd-muted" style="margin-top:0">' + r.desc + '</div>' +
+        '<div class="vd-bar"><i style="left:' + r.sub + '%"></i></div>' +
+        '<div class="vd-barlabels"><span>0 不构成买点</span><span>子分 ' + Math.round(r.sub) + '</span><span>100 强买点</span></div>' +
+        '</div>';
+    }).join('');
+  }
+
+  function renderValuation() {
+    var rows = [
+      ['标普500 TTM PE', V.ttmPE.toFixed(1)],
+      ['TTM 盈利收益率', ttmEY.toFixed(2) + '%'],
+      ['前瞻 PE（按 ' + Math.round(V.forwardEpsGrowth * 100) + '% EPS 增长推算）', fwdPE.toFixed(1)],
+      ['前瞻盈利收益率', fwdEY.toFixed(2) + '%'],
+      ['10 年美债', V.tenYearYield.toFixed(2) + '%']
+    ];
+    $('vd-valrows').innerHTML = rows.map(function (r) {
+      return '<div class="vd-kv"><span>' + r[0] + '</span><b>' + r[1] + '</b></div>';
+    }).join('');
+    $('vd-erpbig').textContent = '前瞻 ERP ≈ ' + fmt2(erpFwd);
+    $('vd-erpnote').innerHTML = 'TTM 口径 ERP = ' + ttmEY.toFixed(2) + '% − ' + V.tenYearYield.toFixed(2) + '% = <b>' + fmt2(erpTTM) + '</b>（按已实现盈利，股票相对债券无溢价）。ERP 子分映射：−2%→0，+3%→100，当前 ' + fmt2(erpFwd) + ' → <b>' + Math.round(ERP_SCORE) + ' 分</b>。历史中枢约 +2~3%，当前明显偏低。前瞻 PE 按 ' + Math.round(V.forwardEpsGrowth * 100) + '% EPS 增长由 TTM 推算。';
+    $('vd-erpmark').style.left = clamp((erpFwd + 2) / 5 * 100) + '%';
+    $('vd-erpnow').textContent = '当前 ' + fmt2(erpFwd);
+  }
+
+  function renderSentiment() {
+    $('vd-fgval').textContent = FG;
+    $('vd-fglabel').textContent = fgLabel(FG);
+    $('vd-fgmark').style.left = FG + '%';
+    $('vd-fgnote').textContent = '买点子分 = 100 − ' + FG + ' = ' + FG_SCORE + '。指数由动量、宽度、Put/Call、VIX 等 7 项合成（CNN 官方口径）。';
+  }
+
+  function renderBreakdown(w) {
+    var ps = partsFor(w);
+    var total = ps.reduce(function (s, p) { return s + p.sub * p.weight / 100; }, 0);
+    $('vd-break').innerHTML = '<tr><th>子项</th><th>子分</th><th>权重</th><th>贡献</th></tr>' +
+      ps.map(function (p) {
+        return '<tr><td>' + p.name + '<span class="vd-src">' + p.raw + '</span></td><td>' + Math.round(p.sub) + '</td><td>' + p.weight + '%</td><td>' + (p.sub * p.weight / 100).toFixed(1) + '</td></tr>';
+      }).join('') +
+      '<tr><td><b>合计</b></td><td></td><td>100%</td><td><b>' + total.toFixed(0) + '</b></td></tr>';
+  }
+
+  function renderVerdict(w) {
+    var total = totalFor(w);
+    var all = Object.keys(S.windows).map(function (k) { return totalFor(+k); });
+    var lo = Math.min.apply(null, all), hi = Math.max.apply(null, all);
+    var sens = hi - lo >= 15
+      ? '各窗口 ' + lo.toFixed(0) + '–' + hi.toFixed(0) + ' 分，结论对窗口敏感。'
+      : '各窗口 ' + lo.toFixed(0) + '–' + hi.toFixed(0) + ' 分，结论稳定。';
+    $('vd-verdict').innerHTML = '一句话结论：<b>' + band(total) + '。</b> 当前 ' + w + ' 年窗口 ' + total.toFixed(0) + ' 分。' + sens + divergence(w);
+  }
+
+  function render(w) {
+    renderTrend(w);
+    renderValuation();
+    renderSentiment();
+    renderBreakdown(w);
+    renderVerdict(w);
+    var total = totalFor(w);
+    $('vd-score').textContent = total.toFixed(0);
+    $('vd-scoremini').textContent = '评分 ' + total.toFixed(0) + '/100';
+    $('vd-gauge').style.left = total + '%';
+  }
+
+  /* ---------- 元信息 ---------- */
+  function renderMeta() {
+    $('vd-asof').textContent = '快照基准：' + S.asOf + ' ' + S.close + ' · 打开页面自动读取';
+    $('vd-refresh').textContent = '数据截至 ' + S.asOf + ' ' + S.close + ' · 每个交易日收盘后由 GitHub Action 更新';
+    $('vd-trendsrc').textContent = '来源：Yahoo 日线 · ' + S.asOf + ' ' + S.close;
+    $('vd-valsrc').textContent = 'TTM PE ' + V.ttmPE + '（' + (V.ttmPESource || '快照') + '）· 10Y ' + V.tenYearYield.toFixed(2) + '%';
+    $('vd-fgsrc').textContent = '来源：CNN · ' + S.sentiment.asOf;
+    $('vd-srclist').innerHTML = [
+      ['行情', 'SPX / NDX / VIX · Yahoo 日线 · ' + S.asOf + ' ' + S.close],
+      ['10年美债', 'Yahoo ^TNX · ' + V.tenYearYield.toFixed(2) + '%' + (V.tenYearAsOf ? ' · ' + V.tenYearAsOf : '')],
+      ['市盈率', 'TTM PE ' + V.ttmPE + '（' + (V.ttmPESource || '快照') + ' · ' + (V.ttmPEAsOf || S.asOf) + '）· 前瞻 PE 按 ' + Math.round(V.forwardEpsGrowth * 100) + '% EPS 增长推算为 ' + fwdPE.toFixed(1)],
+      ['恐惧贪婪', 'CNN Fear & Greed · ' + FG + ' · ' + S.sentiment.asOf]
+    ].map(function (r) {
+      return '<div class="vd-kv"><span>' + r[0] + '</span><b>' + r[1] + '</b></div>';
+    }).join('');
+  }
+
+  /* ---------- 交互 ---------- */
+  var current = 3;
+  $('vd-wins').addEventListener('click', function (e) {
+    var b = e.target.closest('button');
+    if (!b || !b.dataset.w) return;
+    current = +b.dataset.w;
+    Array.prototype.forEach.call(document.querySelectorAll('#vd-wins .vd-btn'), function (x) {
+      x.classList.toggle('on', +x.dataset.w === current);
+    });
+    render(current);
+  });
+
+  /* ---------- 启动 ---------- */
+  compute();
+
+  /* 自检 */
+  (function validate() {
+    var sum = Object.keys(W).reduce(function (a, k) { return a + W[k]; }, 0);
+    console.assert(sum === 100, '权重合计应为 100，实际 ' + sum);
+    console.assert(Math.abs(V.ttmPE / fwdPE - 1 - V.forwardEpsGrowth) < 1e-9, '前瞻 PE 与增长假设不一致');
+    Object.keys(S.windows).forEach(function (k) {
+      ['spx', 'ndx', 'vix'].forEach(function (key) {
+        console.assert(S.windows[k][key] && S.windows[k][key].percentile >= 0 && S.windows[k][key].percentile <= 100, '窗口 ' + k + ' 的 ' + key + ' 分位越界');
+      });
+    });
+  })();
+
+  renderMeta();
+  render(current);
+
+  /* 打开页面时拉取 Action 生成的最新快照；失败就留在内置数据。 */
+  fetch(DATA_URL, { cache: 'no-store' })
+    .then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function (d) {
+      if (!d || !d.windows || !d.valuation || !d.sentiment) throw new Error('数据格式不对');
+      S = d;
+      compute();
+      renderMeta();
+      render(current);
+      var when = d.generatedAt ? new Date(d.generatedAt).toLocaleString('zh-CN') : d.asOf;
+      $('vd-refresh').textContent += ' · 已读取实时数据（生成于 ' + when + '）';
+    })
+    .catch(function (err) {
+      $('vd-refresh').textContent += ' · 实时数据读取失败，使用内置快照（' + FALLBACK.asOf + '）';
+      console.warn('valuation data:', err);
+    });
+})();
+</script>
+</div>

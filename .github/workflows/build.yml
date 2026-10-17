@@ -1,0 +1,45 @@
+name: build
+
+# docs/ 是手工提交的构建产物。改了内容却忘了跑 hugo，线上就会是旧的；
+# 这里重新构建一遍，和仓库里的 docs/ 比对，不一致就失败并打出差异。
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'content/**'
+      - 'layouts/**'
+      - 'static/**'
+      - 'assets/**'
+      - 'config/**'
+      - 'data/**'
+      - 'i18n/**'
+      - 'archetypes/**'
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: '0.168.0'
+          extended: true
+
+      - name: Build
+        run: hugo --quiet
+
+      - name: Check docs/ is current
+        run: |
+          # 用 git add -A 才能看见新建页面产生的未跟踪文件。
+          git add -A -- docs
+          if ! git diff --cached --quiet -- docs; then
+            git diff --cached --stat -- docs
+            echo "::error::docs/ 与源码不一致。请在本地跑 hugo，把 docs/ 一起提交。"
+            exit 1
+          fi

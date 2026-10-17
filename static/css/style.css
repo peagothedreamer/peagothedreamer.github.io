@@ -192,6 +192,34 @@ footer { padding-block: 2rem 3rem; color: var(--dim); font-size: 0.875rem; }
 .meta { margin: 0 0 2.5rem; color: var(--dim); font-size: 0.875rem; }
 .meta .tags::before { content: " · "; }
 
+/* 文章顶部的 md 目录（Hugo 按 h2/h3 生成），折叠 + 吸顶 */
+.toc {
+  position: sticky;
+  top: 3.5rem;   /* 让开顶部吸顶导航栏，别把它盖住 */
+  z-index: 1;
+  margin: 0 0 2.5rem;
+  padding: 0.5rem 0;
+  background: var(--bg);
+  border-bottom: 1px solid rgba(127, 127, 127, 0.18);
+  font-size: 0.9375rem;
+}
+.toc summary {
+  cursor: pointer;
+  color: var(--dim);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+}
+.toc summary:hover { color: var(--fg); }
+/* 展开时别让长目录盖满屏幕 */
+.toc[open] { max-height: 70vh; overflow-y: auto; }
+.toc ul { margin: 0.75rem 0 0.25rem; padding-left: 1.5ch; list-style: none; }
+.toc ul ul { margin-top: 0.25rem; }
+.toc li { margin: 0.3rem 0; }
+.toc a { color: var(--dim); text-decoration: none; }
+.toc a:hover { color: var(--fg); text-decoration: underline; }
+/* 锚点跳转后标题别被吸顶目录挡住 */
+.prose h2, .prose h3, .prose h4 { scroll-margin-top: 6rem; }
+
 /* article body —— 正文用衬线，界面和 ASCII 装饰仍归等宽 */
 .prose { max-width: 38em; font-family: var(--serif); }
 .prose > :first-child { margin-top: 0; }

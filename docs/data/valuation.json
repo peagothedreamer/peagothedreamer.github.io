@@ -1,0 +1,85 @@
+{
+  "asOf": "2026-10-16",
+  "close": "美股收盘",
+  "generatedAt": "2026-10-17T07:43:59+00:00",
+  "valuation": {
+    "ttmPE": 26.12,
+    "ttmPEAsOf": "2026-10-16",
+    "ttmPESource": "multpl.com",
+    "forwardEpsGrowth": 0.1,
+    "tenYearYield": 5.1,
+    "tenYearAsOf": "2026-10-16"
+  },
+  "sentiment": {
+    "fearGreed": 18,
+    "rating": "extreme fear",
+    "asOf": "2026-10-16",
+    "source": "CNN"
+  },
+  "windows": {
+    "1": {
+      "spx": {
+        "price": 7659.44,
+        "deviation": -1.7,
+        "percentile": 16
+      },
+      "ndx": {
+        "price": 29187.55,
+        "deviation": -4.6,
+        "percentile": 16
+      },
+      "vix": {
+        "value": 19.99,
+        "percentile": 81
+      }
+    },
+    "3": {
+      "spx": {
+        "price": 7659.44,
+        "deviation": -1.9,
+        "percentile": 22
+      },
+      "ndx": {
+        "price": 29187.55,
+        "deviation": -2.7,
+        "percentile": 23
+      },
+      "vix": {
+        "value": 19.99,
+        "percentile": 83
+      }
+    },
+    "5": {
+      "spx": {
+        "price": 7659.44,
+        "deviation": 3.3,
+        "percentile": 66
+      },
+      "ndx": {
+        "price": 29187.55,
+        "deviation": 2.1,
+        "percentile": 59
+      },
+      "vix": {
+        "value": 19.99,
+        "percentile": 67
+      }
+    },
+    "10": {
+      "spx": {
+        "price": 7659.44,
+        "deviation": 8.1,
+        "percentile": 86
+      },
+      "ndx": {
+        "price": 29187.55,
+        "deviation": 3.4,
+        "percentile": 67
+      },
+      "vix": {
+        "value": 19.99,
+        "percentile": 69
+      }
+    }
+  }
+}

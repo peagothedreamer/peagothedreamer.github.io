@@ -1,1 +1,2 @@
 User-agent: *
+Sitemap: https://peagothedreamer.github.io/sitemap.xml
