@@ -48,6 +48,7 @@
     });
   });
 </script>
+{{ if .HasShortcode "audio" }}<script src="{{ "js/player.js" | relURL }}" defer></script>{{ end }}
 {{ if or .IsHome .Params.ascii }}<script type="module" src="https://ascii.rest/ascii.js"></script>{{ end }}
 
 </body>

@@ -1,0 +1,28 @@
+{
+  "counting-stars": {
+    "album": "Counting Stars",
+    "artist": "OneRepublic",
+    "tracks": [
+      {
+        "file": "counting-stars-01-counting-stars.mp3",
+        "seconds": 20,
+        "title": "Counting Stars"
+      },
+      {
+        "file": "counting-stars-02-secrets.mp3",
+        "seconds": 20,
+        "title": "Secrets"
+      },
+      {
+        "file": "counting-stars-03-feel-again.mp3",
+        "seconds": 20,
+        "title": "Feel Again"
+      },
+      {
+        "file": "counting-stars-04-what-you-wanted.mp3",
+        "seconds": 20,
+        "title": "What You Wanted (Live)"
+      }
+    ]
+  }
+}

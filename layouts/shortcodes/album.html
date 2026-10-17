@@ -1,0 +1,90 @@
+{{/* 整张专辑一个播放器。歌丢进 static/audio/<专辑文件夹>/（mp3 被 .gitignore 挡着，
+   不会提交，只是本地开发时能听），曲目列表就是这个文件夹里有什么，按文件名排序，
+   所以记得用 01 02 03 这种补零前缀：
+
+     {{< album "counting-stars" >}}
+     {{< album folder="counting-stars" title="Counting Stars" artist="OneRepublic" >}}
+
+   曲名 / 专辑名 / 歌手 / 时长都来自 ID3 标签，来源是 tools/album-tags.py 生成的
+   data/audio.json（加过歌、改过标签要重跑一次那个脚本）：
+     python tools/album-tags.py
+   没跑过、或者文件夹本地不存在时，退回读文件名（去掉序号前缀当曲名）。
+   封面默认 static/audio/<专辑文件夹>/cover.jpg（封面进仓库，几十 KB）；
+   title= / artist= 写在这儿会盖掉标签里的值（title= 是专辑名，不是曲名）。
+
+   卡片第一行显示正在播放的曲名（换歌时 JS 换掉），第二行是「歌手 · 专辑名」。
+
+   线上的 mp3 全部放同一个 GitHub Release（release 里的资产名是平铺的，没文件夹），
+   所以文件名得带专辑前缀、全局唯一：counting-stars-01-secrets.mp3。
+   那个共用的下载前缀写在 config/_default/hugo.toml 的 audioBase 里
+   （见那里注释），正文只要写 folder；单张专辑想换地方就加 base="..." 覆盖。
+   audioBase 空着 = 用本地 static/audio/<专辑>/ 的路径，只有本地开发能听。 */}}
+{{- $folder := .Get "folder" | default (.Get 0) -}}
+{{- $dir := printf "static/audio/%s" $folder -}}
+{{- $base := .Get "base" | default site.Params.audioBase -}}
+{{- $albumTag := "" -}}
+{{- $artistTag := "" -}}
+{{- $tracks := slice -}}
+{{- with site.Data.audio -}}{{- with index . $folder -}}
+  {{- $albumTag = .album -}}
+  {{- $artistTag = .artist -}}
+  {{- range .tracks -}}{{- $tracks = $tracks | append . -}}{{- end -}}
+{{- end -}}{{- end -}}
+{{- if not $tracks -}}
+  {{- range (os.ReadDir $dir) -}}
+    {{- if and (not .IsDir) (strings.HasSuffix (lower .Name) ".mp3") -}}
+      {{- $clean := strings.TrimSuffix ".mp3" .Name -}}
+      {{- /* 文件名惯例是 counting-stars-01-secrets.mp3：先削专辑前缀再削序号 */ -}}
+      {{- $clean = replaceRE (printf "^%s[-_ .]+" $folder) "" $clean -}}
+      {{- $clean = strings.TrimSpace (replaceRE "^[0-9]+[ ._-]+" "" $clean) -}}
+      {{- $tracks = $tracks | append (dict "file" .Name "title" $clean "seconds" 0) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{/* title= 说的是专辑名——它现在长在第二行（"歌手 · 专辑名"），
+   第一行留给当前曲名。专辑名没有（比如只有文件名可读）就退成"N 首"。 */}}
+{{- $albumName := .Get "title" | default $albumTag | default (printf "%d 首" (len $tracks)) -}}
+{{- $artist := .Get "artist" | default $artistTag -}}
+{{- $cover := .Get "cover" -}}
+{{- if not $cover -}}
+  {{- range slice "jpg" "jpeg" "png" "webp" -}}
+    {{- $try := printf "cover.%s" . -}}
+    {{- if and (not $cover) (os.FileExists (printf "%s/%s" $dir $try)) -}}{{- $cover = printf "%s/%s" $folder $try -}}{{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- if not $tracks -}}
+<p class="player-missing">没找到专辑文件夹 <code>static/audio/{{ $folder }}/</code>，也没在 <code>data/audio.json</code> 里找到这张专辑。</p>
+{{- else -}}
+<figure class="player album">
+  <div class="player-cover">
+    {{- if $cover -}}
+      <img src="{{ printf "audio/%s" $cover | relURL | replaceRE " " "%20" }}" alt="" width="480" height="480" loading="lazy" decoding="async">
+    {{- else -}}
+      <span class="ph" aria-hidden="true">♪</span>
+    {{- end -}}
+  </div>
+  <div class="player-info">
+    <div class="player-title">{{ (index $tracks 0).title }}</div>
+    <div class="player-artist">{{ with $artist }}{{ . }} · {{ end }}{{ $albumName }}</div>
+    <div class="player-bar">
+      <button type="button" class="play" aria-label="播放">▶</button>
+      <input class="seek" type="range" min="0" max="1000" value="0" aria-label="播放进度">
+      <span class="time">0:00 / 0:00</span>
+    </div>
+  </div>
+  <ol class="tracks">
+    {{- $first := "" -}}
+    {{- range $i, $t := $tracks -}}
+      {{- $src := "" -}}
+      {{- if $base -}}{{- $src = printf "%s/%s" $base $t.file -}}{{- else -}}{{- $src = printf "audio/%s/%s" $folder $t.file | relURL -}}{{- end -}}
+      {{- $src = replaceRE " " "%20" $src -}}
+      {{- if eq $i 0 -}}{{- $first = $src -}}{{- end -}}
+      {{- $secs := int $t.seconds -}}
+    <li><button type="button" class="track" data-src="{{ $src }}" data-title="{{ $t.title }}">
+      <span class="n">{{ printf "%02d" (add $i 1) }}</span><span class="t">{{ $t.title }}</span>{{ if gt $secs 0 }}<span class="d">{{ printf "%d:%02d" (div $secs 60) (mod $secs 60) }}</span>{{ end }}
+    </button></li>
+    {{- end -}}
+  </ol>
+  <audio preload="metadata" src="{{ $first }}"></audio>
+</figure>
+{{- end -}}

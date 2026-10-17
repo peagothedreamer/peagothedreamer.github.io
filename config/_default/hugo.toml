@@ -16,6 +16,14 @@ disableKinds = ['taxonomy', 'term']
 [params]
   description = 'peago（管云哲）的个人主页。浙江大学 电子科学与技术，大二在读。方向：学习 / 投资 / 音乐。'
 
+  # 专辑 mp3 的存放处：所有专辑共用一个 GitHub Release，资产名是平铺的，
+  # 所以文件名带专辑前缀（counting-stars-01-secrets.mp3）。
+  # 底下这行填 release 的下载前缀，album 短代码就用它拼 URL，正文里不用再写一遍。
+  # 留空 = 用本地 static/audio/<专辑>/ 的路径（只有本地开发能听）。
+  # 建好 release 后填成：
+  #   audioBase = 'https://github.com/peagothedreamer/peagothedreamer.github.io/releases/download/music'
+  audioBase = ''
+
 # 文章页底部的评论（giscus，数据存在本仓库的 Discussions 里）。
 # 整块删掉即可关闭评论；[params.giscus] 必须留在 [params] 之后。
 [params.giscus]

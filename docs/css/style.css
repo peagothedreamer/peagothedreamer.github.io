@@ -282,6 +282,109 @@ footer { padding-block: 2rem 3rem; color: var(--dim); font-size: 0.875rem; }
   .page-art { font-size: 0.375rem; }   /* ≈ 212x180px */
 }
 
+/* 正文里的音频播放器（audio 短代码）：封面 + 标题 + 一行播放条。
+   原生 <audio> 只当引擎，界面全在 HTML 里（static/js/player.js 管行为）。
+   正文是衬线，播放器算界面，字体钉回等宽。 */
+.prose .player {
+  display: grid;
+  grid-template-columns: 5rem 1fr;
+  gap: 0.9rem;
+  align-items: center;
+  margin: 1.75rem 0;
+  padding: 0.75rem;
+  border: 1px solid rgba(127, 127, 127, 0.3);
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+.prose .player audio { display: none; }   /* 控件自己画 */
+
+.player-cover {
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: rgba(127, 127, 127, 0.12);
+}
+.player-cover img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.player-cover .ph { display: grid; place-items: center; height: 100%; color: var(--dim); font-size: 1.5rem; }
+
+.player-artist { color: var(--dim); font-size: 0.75rem; }
+/* 网格项的 min-width 默认是 auto，不给 0 的话窄屏下这一列顶不开，
+   进度条不缩，右边的时间就被卡片裁掉。 */
+.player-info { min-width: 0; }
+
+.player-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+/* 播放/暂停：一个字符的按钮，跟首页复制微信号那个一样去掉浏览器默认样式。
+   定宽，免得 ▶ 和 ❚❚ 宽度不同把进度条挤来挤去。 */
+.player .play {
+  flex: none;
+  width: 1.6em;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: center;
+  cursor: pointer;
+}
+.player .play:hover { color: var(--dim); }
+.player .seek { flex: 1; min-width: 0; height: 1rem; margin: 0; accent-color: var(--fg); }
+.player .time {
+  flex: none;
+  color: var(--dim);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* 专辑播放器：曲目列表接在单曲那张卡下面，横跨封面和文字两栏 */
+.prose .player .tracks {
+  grid-column: 1 / -1;
+  margin: 0.2rem 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid rgba(127, 127, 127, 0.18);
+}
+.prose .player .tracks li { margin: 0; }   /* 挡住 .prose li 那条外边距 */
+.prose .player .track {
+  display: flex;
+  gap: 0.75ch;
+  width: 100%;
+  padding: 0.3rem 0.4rem;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--dim);
+  text-align: left;
+  cursor: pointer;
+}
+.prose .player .track:hover { color: var(--fg); background: rgba(127, 127, 127, 0.1); }
+.prose .player .track .n { flex: none; font-size: 0.75rem; }
+/* 正在放的那首：换成正文色，左边加一道竖线（inset 阴影不占位置，列表不跳） */
+.prose .player .track.on { color: var(--fg); box-shadow: inset 2px 0 0 var(--fg); }
+.prose .player .track .d { flex: none; color: var(--dim); font-size: 0.75rem; font-variant-numeric: tabular-nums; }
+.prose .player .track .t {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* 专辑文件夹不存在时留的话（构建机器上没有那些没进仓库的 mp3 时会出现） */
+.prose .player-missing { color: var(--dim); font-family: var(--mono); font-size: 0.8125rem; }
+
+/* 窄屏（手机）：缩封面、缩内边距、缩时间字号，把宽度让给进度条——
+   不缩的话 320px 下进度条只剩三十几像素，没法拖。 */
+@media (max-width: 30rem) {
+  .prose .player { grid-template-columns: 4rem 1fr; gap: 0.75rem; padding: 0.6rem; }
+  .player .time { font-size: 0.6875rem; }
+}
+
 /* giscus comments — article pages + homepage */
 .comments {
   margin-top: 2.5rem;

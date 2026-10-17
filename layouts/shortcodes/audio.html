@@ -1,0 +1,47 @@
+{{/* 正文里插一个音频播放器。mp3 不进仓库（仓库太小），放 GitHub Releases，
+   正文里写完整 URL：
+     {{< audio src="https://github.com/peagothedreamer/peagothedreamer.github.io/releases/download/music-1/onerepublic-counting-stars.mp3"
+               title="Counting Stars" artist="OneRepublic" cover="onerepublic-counting-stars.jpg" >}}
+
+   本地开发时 mp3 丢在 static/audio/（.gitignore 挡着不会提交），写文件名就行，
+   标题 / 歌手从 "歌手 - 歌名.mp3" 拆：
+     {{< audio "OneRepublic - Counting Stars.mp3" >}}
+
+   封面默认找 static/audio/ 里的同名图片（封面几十 KB，照常进仓库），没有就画个 ♪。
+   Hugo 不允许位置参数和具名参数混用，所以要写封面/标题就得整条换成 src= 那套。
+
+   播放界面自己画（static/js/player.js + style.css），原生 <audio> 只当引擎。 */}}
+{{- $file := .Get "src" | default (.Get 0) -}}
+{{- $remote := or (hasPrefix $file "http://") (hasPrefix $file "https://") -}}
+{{- $name := strings.TrimSuffix ".mp3" (path.Base $file) -}}
+{{- $parts := split $name " - " -}}
+{{- $artist := .Get "artist" | default (cond (eq (len $parts) 2) (index $parts 0) "") -}}
+{{- $title := .Get "title" | default (cond (eq (len $parts) 2) (index $parts 1) $name) -}}
+{{- $cover := .Get "cover" -}}
+{{- if not $cover -}}
+  {{- range slice "jpg" "jpeg" "png" "webp" -}}
+    {{- $try := printf "static/audio/%s.%s" $name . -}}
+    {{- if and (not $cover) (os.FileExists $try) -}}{{- $cover = path.Base $try -}}{{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- $src := $file -}}
+{{- if not $remote -}}{{- $src = printf "audio/%s" (path.Base $file) | relURL | replaceRE " " "%20" -}}{{- end -}}
+<figure class="player">
+  <div class="player-cover">
+    {{- if $cover -}}
+      <img src="{{ printf "audio/%s" (path.Base $cover) | relURL | replaceRE " " "%20" }}" alt="" width="480" height="480" loading="lazy" decoding="async">
+    {{- else -}}
+      <span class="ph" aria-hidden="true">♪</span>
+    {{- end -}}
+  </div>
+  <div class="player-info">
+    <div class="player-title">{{ $title }}</div>
+    {{- with $artist }}<div class="player-artist">{{ . }}</div>{{ end }}
+    <div class="player-bar">
+      <button type="button" class="play" aria-label="播放">▶</button>
+      <input class="seek" type="range" min="0" max="1000" value="0" aria-label="播放进度">
+      <span class="time">0:00 / 0:00</span>
+    </div>
+  </div>
+  <audio preload="metadata" src="{{ $src }}"></audio>
+</figure>
