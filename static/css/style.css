@@ -7,9 +7,9 @@
           "JetBrains Mono", Consolas, "DejaVu Sans Mono",
           "Sarasa Mono SC", "Noto Sans Mono CJK SC", "Microsoft YaHei Mono",
           "Microsoft YaHei", monospace;
-  /* 文章正文的衬线。故意跟 giscus 的 fro 主题用同一条栈，正文和评论区字体一致。
-     没有 webfont：拉丁取系统衬线（Win 上是 Georgia），中文由系统补衬线字
-     （Win 上是 SimSun/宋体）。所以不同系统看到的不完全一样，这是取舍。 */
+  /* 文章正文的衬线。没有 webfont：拉丁取系统衬线（Win 上是 Georgia），
+     中文由系统补衬线字（Win 上是 SimSun/宋体）。所以不同系统看到的不完全
+     一样，这是取舍。 */
   --serif: ui-serif, "Georgia", "Cambria", "Times New Roman", "Times", serif;
   --measure: 46rem;
   --pad: 1.5rem;
@@ -40,31 +40,13 @@ body {
   -webkit-text-size-adjust: 100%;
 }
 
-/* 背景：极淡点阵，20 秒漂一格，固定在视口上不随内容滚动。
-   body 的背景会传到 canvas，所以 ::before 用负 z-index 就落在底色之上、内容之下。
-   inset 多给一格，向左下平移时才不会露出边。 */
-body::before {
-  content: "";
+/* 背景：极淡点阵，每个点只在自己格子附近小幅漂移（static/js/dots.js 画在 canvas 上）。
+   固定在视口上不随内容滚动；body 的背景会传到 canvas，负 z-index 就落在底色之上、内容之下。 */
+#dots {
   position: fixed;
-  inset: -24px;
+  inset: 0;
   z-index: -1;
   pointer-events: none;
-  background-image: radial-gradient(circle, rgba(23, 25, 28, 0.15) 1px, transparent 1px);
-  background-size: 24px 24px;
-  animation: drift 20s linear infinite;
-}
-:root[data-theme="dark"] body::before {
-  background-image: radial-gradient(circle, rgba(231, 231, 228, 0.11) 1px, transparent 1px);
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) body::before {
-    background-image: radial-gradient(circle, rgba(231, 231, 228, 0.11) 1px, transparent 1px);
-  }
-}
-/* 平移正好一格（24px），首尾图案重合，循环无缝 */
-@keyframes drift { to { transform: translate(-24px, 24px); } }
-@media (prefers-reduced-motion: reduce) {
-  body::before { animation: none; }
 }
 
 .wrap {

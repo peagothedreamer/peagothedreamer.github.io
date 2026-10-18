@@ -43,6 +43,7 @@
 <meta name="twitter:card" content="summary_large_image">
 </head>
 <body id="top">
+<canvas id="dots" aria-hidden="true"></canvas>
 
 <header class="nav">
   <div class="wrap">
@@ -101,8 +102,11 @@
   var bannerDark = bannerSource && bannerSource.getAttribute("srcset");
   if (bannerSource) bannerSource.remove();
 
-  // 亮色用 fro（衬线，和正文一致），暗色用内置 dark。
-  function giscusTheme(dark) { return dark ? "dark" : "fro"; }
+  // 用本站自托管的 fro：官方 fro 自带 @media (prefers-color-scheme: dark)，
+  // 系统是暗色、站点手动切成亮色时文字会变白，浅底上直接看不见。
+  function giscusTheme(dark) {
+    return dark ? "{{ "giscus/fro-dark.css" | absURL }}" : "{{ "giscus/fro.css" | absURL }}";
+  }
 
   function syncTheme() {
     var dark = isDark();
@@ -144,6 +148,7 @@
   });
 </script>
 {{ if .HasShortcode "audio" }}<script src="{{ "js/player.js" | relURL }}" defer></script>{{ end }}
+<script src="{{ "js/dots.js" | relURL }}" defer></script>
 <script src="{{ "js/terminal.js" | relURL }}" defer></script>
 {{ if or .IsHome .Params.ascii (eq .Kind "404") }}<script type="module" src="https://ascii.rest/ascii.js"></script>{{ end }}
 

@@ -12,7 +12,7 @@
           data-reactions-enabled="1"
           data-emit-metadata="0"
           data-input-position="top"
-          data-theme="fro"
+          data-theme="{{ "giscus/fro.css" | absURL }}"
           data-lang="zh-CN"
           data-loading="lazy"
           crossorigin="anonymous"
@@ -27,7 +27,7 @@
         ? root.dataset.theme === "dark"
         : matchMedia("(prefers-color-scheme: dark)").matches;
       document.querySelector('script[src="https://giscus.app/client.js"]').dataset.theme =
-        dark ? "dark" : "fro";
+        dark ? "{{ "giscus/fro-dark.css" | absURL }}" : "{{ "giscus/fro.css" | absURL }}";
     })();
   </script>
 </section>
