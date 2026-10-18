@@ -1,5 +1,5 @@
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
   --bg: #fdfdfc;
   --fg: #17191c;
   --dim: #6c7278;
@@ -15,8 +15,16 @@
   --pad: 1.5rem;
 }
 
+/* 默认跟系统走；手动切过（<html data-theme>）就以手动为准。 */
 @media (prefers-color-scheme: dark) {
-  :root { --bg: #0c0d0f; --fg: #e7e7e4; --dim: #8b9199; }
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0c0d0f; --fg: #e7e7e4; --dim: #8b9199;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0c0d0f; --fg: #e7e7e4; --dim: #8b9199;
 }
 
 * { box-sizing: border-box; }
@@ -30,6 +38,33 @@ body {
   line-height: 1.75;
   font-variant-ligatures: none;
   -webkit-text-size-adjust: 100%;
+}
+
+/* 背景：极淡点阵，90 秒漂一格，固定在视口上不随内容滚动。
+   body 的背景会传到 canvas，所以 ::before 用负 z-index 就落在底色之上、内容之下。
+   inset 多给一格，向左下平移时才不会露出边。 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -24px;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(circle, rgba(23, 25, 28, 0.12) 1px, transparent 1px);
+  background-size: 24px 24px;
+  animation: drift 90s linear infinite;
+}
+:root[data-theme="dark"] body::before {
+  background-image: radial-gradient(circle, rgba(231, 231, 228, 0.09) 1px, transparent 1px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) body::before {
+    background-image: radial-gradient(circle, rgba(231, 231, 228, 0.09) 1px, transparent 1px);
+  }
+}
+/* 平移正好一格（24px），首尾图案重合，循环无缝 */
+@keyframes drift { to { transform: translate(-24px, 24px); } }
+@media (prefers-reduced-motion: reduce) {
+  body::before { animation: none; }
 }
 
 .wrap {
@@ -72,6 +107,24 @@ a:hover { text-decoration-color: currentColor; }
 }
 .nav ul a { color: var(--dim); text-decoration: none; }
 .nav ul a:hover { color: var(--fg); }
+
+/* 白天/黑夜：图标显示点下去会切到哪边——白天是月亮，黑夜是太阳。 */
+.theme-toggle {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--dim);
+  font: inherit;
+  font-size: 1.0625rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.theme-toggle:hover { color: var(--fg); }
+.theme-toggle::before { content: "☾"; }
+:root[data-theme="dark"] .theme-toggle::before { content: "☀"; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-toggle::before { content: "☀"; }
+}
 
 /* hero */
 .hero { padding-block: clamp(3rem, 13vh, 7rem) 2rem; }

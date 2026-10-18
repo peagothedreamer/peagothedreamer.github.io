@@ -19,6 +19,14 @@
 {{- end }}
 <meta name="theme-color" content="#fdfdfc" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0c0d0f" media="(prefers-color-scheme: dark)">
+<script>
+  // 手动选过白天/黑夜就用 data-theme 覆盖系统配色。放在 head 里，避免首屏闪一下。
+  // file:// 下 localStorage 可能抛 SecurityError，兜住。
+  try {
+    var t = localStorage.getItem("theme");
+    if (t) document.documentElement.dataset.theme = t;
+  } catch (e) {}
+</script>
 <meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
 <meta property="og:title" content="{{ if .IsHome }}{{ site.Title }}{{ else if eq .Kind "404" }}页面不存在{{ else }}{{ .Title }}{{ end }}">
 <meta property="og:description" content="{{ $desc }}">
@@ -44,6 +52,7 @@
         <li><a href="{{ site.Home.RelPermalink }}#about">about</a></li>
         <li><a href="{{ site.Home.RelPermalink }}#projects">projects</a></li>
         <li><a href="{{ site.Home.RelPermalink }}#contact">contact</a></li>
+        <li><button type="button" class="theme-toggle" id="theme-toggle" aria-label="切换白天/黑夜模式" title="切换白天/黑夜模式"></button></li>
       </ul>
     </nav>
   </div>
@@ -63,6 +72,16 @@
 
 <script>
   document.getElementById("year").textContent = new Date().getFullYear();
+
+  // 白天/黑夜：第一次点之前没有 data-theme，就先看系统当前是哪一边。
+  document.getElementById("theme-toggle").addEventListener("click", function () {
+    var root = document.documentElement;
+    var dark = root.dataset.theme
+      ? root.dataset.theme === "dark"
+      : matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    try { localStorage.setItem("theme", root.dataset.theme); } catch (e) {}
+  });
 
   // contact 里的微信号：点一下复制。?. 兜底非安全上下文（file:// 直接打开 docs/ 时
   // navigator.clipboard 是 undefined），那种情况下不报错、只是没反应。
