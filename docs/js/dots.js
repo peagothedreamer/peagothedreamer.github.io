@@ -12,7 +12,11 @@
   var color = "";
   var raf = 0;
   var last = 0;
+  var mobile = matchMedia("(max-width: 30rem)");
   var GAP = 24;   // 和原来的点阵间距一致
+  var RAD = 1;    // 点的半径
+  var driftMin = 3;
+  var driftSpan = 3;
 
   function isDark() {
     var t = document.documentElement.dataset.theme;
@@ -26,14 +30,16 @@
     ctx.beginPath();
     for (var i = 0; i < dots.length; i++) {
       var d = dots[i];
-      ctx.moveTo(d.x + 1, d.y);
-      ctx.arc(d.x, d.y, 1, 0, Math.PI * 2);
+      ctx.moveTo(d.x + RAD, d.y);
+      ctx.arc(d.x, d.y, RAD, 0, Math.PI * 2);
     }
     ctx.fill();
   }
 
   function setColor() {
-    color = isDark() ? "rgba(231, 231, 228, 0.11)" : "rgba(23, 25, 28, 0.15)";
+    var light = !isDark();
+    var alpha = mobile.matches ? (light ? "0.13" : "0.10") : (light ? "0.15" : "0.11");
+    color = light ? "rgba(23, 25, 28, " + alpha + ")" : "rgba(231, 231, 228, " + alpha + ")";
     draw();
   }
 
@@ -44,6 +50,12 @@
     canvas.width = Math.round(w * dpr);
     canvas.height = Math.round(h * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    // 手机上点更小更密，漂移范围也按比例收，网格感更稳。
+    GAP = mobile.matches ? 18 : 24;
+    RAD = mobile.matches ? 0.75 : 1;
+    driftMin = mobile.matches ? 2 : 3;
+    driftSpan = mobile.matches ? 2 : 3;
 
     dots = [];
     for (var y = GAP / 2; y < h; y += GAP) {
@@ -56,11 +68,11 @@
           a: Math.random() * Math.PI * 2,        // 方向
           v: 0.8 + Math.random() * 1.4,          // px/s
           va: (Math.random() - 0.5) * 0.5,       // 方向缓慢拐弯
-          r: 3 + Math.random() * 3               // 离家最远 3–6px
+          r: driftMin + Math.random() * driftSpan  // 离家最远 3–6px（手机 2–4px）
         });
       }
     }
-    draw();
+    setColor();   // 跨断点时透明度也要跟着换
     start();
   }
 

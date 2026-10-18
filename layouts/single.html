@@ -2,6 +2,7 @@
 <div class="wrap">
   <article class="page">
     <h1 class="page-title">{{ .Title }}</h1>
+    {{ with .Params.subtitle }}<p class="page-subtitle">{{ . }}</p>{{ end }}
     <p class="meta">
       {{ if not .Date.IsZero }}<time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006-01-02" }}</time>{{ end }}
       {{ with .Params.tags }}<span class="tags">{{ delimit . " / " }}</span>{{ end }}

@@ -42,6 +42,35 @@ main {
   --text-muted-color: rgb(82 82 82);
   --text-normal-color: rgb(10 10 10);
   --color-segmented-control-bg: transparent;
+
+  /* 官方 fro 自己不定义这些基底变量，透明 iframe 会让站点的点阵透进来。
+     补一套本站亮色，评论区的底色和边框就实心了。 */
+  --color-fg-default: #17191c;
+  --color-fg-muted: #6c7278;
+  --color-fg-subtle: #8b9199;
+  --color-canvas-default: #fdfdfc;
+  --color-canvas-overlay: #ffffff;
+  --color-canvas-inset: #f7f7f5;
+  --color-canvas-subtle: #f3f3f1;
+  --color-border-default: #d8d8d4;
+  --color-border-muted: #e6e6e2;
+  --color-neutral-muted: rgb(23 25 28 / 10%);
+  --color-accent-fg: #17191c;
+  --color-accent-emphasis: #d8d8d4;
+  --color-accent-muted: rgb(23 25 28 / 20%);
+  --color-accent-subtle: rgb(23 25 28 / 6%);
+  --color-success-fg: #1a7f37;
+  --color-attention-fg: #9a6700;
+  --color-attention-muted: rgb(187 128 9 / 40%);
+  --color-attention-subtle: rgb(187 128 9 / 15%);
+  --color-danger-fg: #cf222e;
+  --color-danger-muted: rgb(255 129 130 / 40%);
+  --color-danger-subtle: #ffebe9;
+  --color-primer-shadow-inset: 0 0 transparent;
+  --color-scale-gray-7: #f6f8fa;
+  --color-scale-blue-8: #ddf4ff;
+  --color-social-reaction-bg-hover: var(--color-scale-gray-7);
+  --color-social-reaction-bg-reacted-hover: var(--color-scale-blue-8);
 }
 
 .gsc-comments .gsc-header .gsc-left-header em a {

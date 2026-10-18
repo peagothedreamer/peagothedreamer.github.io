@@ -274,6 +274,7 @@ footer { padding-block: 2rem 3rem; color: var(--dim); font-size: 0.875rem; }
   line-height: 1.1;
   letter-spacing: -0.02em;
 }
+.page-subtitle { margin: -0.75rem 0 0; color: var(--dim); font-size: 1.0625rem; line-height: 1.6; }
 .meta { margin: 0 0 2.5rem; color: var(--dim); font-size: 0.875rem; }
 .meta .tags::before { content: " · "; }
 
