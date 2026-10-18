@@ -9,10 +9,16 @@
     </p>
 
     {{ if .Fragments.Headings }}
-    <details class="toc">
+    <details class="toc" id="toc">
       <summary>目录</summary>
       {{ .TableOfContents }}
     </details>
+    <script>
+      // 点目录里的链接后自动收起，别挡着正文。
+      document.getElementById("toc").addEventListener("click", function (e) {
+        if (e.target.closest("a")) this.open = false;
+      });
+    </script>
     {{ end }}
 
     <div class="prose">{{ .Content }}</div>
