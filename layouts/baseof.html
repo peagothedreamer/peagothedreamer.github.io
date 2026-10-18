@@ -70,17 +70,66 @@
   </div>
 </footer>
 
+<!-- 彩蛋终端（static/js/terminal.js 管行为）。 -->
+<div class="term" id="term">
+  <div class="term-out" id="term-out" role="log" aria-live="polite"></div>
+  <form class="term-line" id="term-form">
+    <span aria-hidden="true">&gt;</span>
+    <input id="term-in" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="终端输入">
+  </form>
+</div>
+<template id="term-ls"><pre>.
+├── <a href="{{ with site.GetPage "learning" }}{{ .RelPermalink }}{{ end }}">learning/</a>   学习 · 资源、笔记
+├── <a href="{{ with site.GetPage "investing" }}{{ .RelPermalink }}{{ end }}">investing/</a>  投资 · 记录与复盘
+└── <a href="{{ with site.GetPage "prattling" }}{{ .RelPermalink }}{{ end }}">prattling/</a>  发电 · 空想家的自我修养</pre></template>
+
 <script>
   document.getElementById("year").textContent = new Date().getFullYear();
+
+  // 当前实际主题：手动切过（data-theme）就用它，否则跟系统。
+  function isDark() {
+    var t = document.documentElement.dataset.theme;
+    return t ? t === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  }
+
+  // banner 的两版 SVG 和图内的 giscus iframe 不跟着 CSS 变量走，主题变了得手动同步。
+  // 先把 <picture> 里的两版地址取出来，之后由 JS 负责换。
+  var banner = document.querySelector(".banner");
+  var bannerImg = banner && banner.querySelector("img");
+  var bannerSource = banner && banner.querySelector("source");
+  var bannerLight = bannerImg && bannerImg.getAttribute("src");
+  var bannerDark = bannerSource && bannerSource.getAttribute("srcset");
+  if (bannerSource) bannerSource.remove();
+
+  // 亮色用 fro（衬线，和正文一致），暗色用内置 dark。
+  function giscusTheme(dark) { return dark ? "dark" : "fro"; }
+
+  function syncTheme() {
+    var dark = isDark();
+    if (bannerImg) bannerImg.src = dark ? bannerDark : bannerLight;
+
+    // client.js 还没跑：改它的 data-theme 会生效；已经跑了：发消息让 iframe 换主题。
+    var giscus = document.querySelector('script[src="https://giscus.app/client.js"]');
+    if (giscus) giscus.dataset.theme = giscusTheme(dark);
+    var frame = document.querySelector("iframe.giscus-frame");
+    if (frame) frame.contentWindow.postMessage(
+      { giscus: { setConfig: { theme: giscusTheme(dark) } } },
+      "https://giscus.app"
+    );
+  }
+  syncTheme();
+
+  // 没手动选过时跟着系统走；CSS 自己会变，banner/giscus 需要这套同步。
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () {
+    if (!document.documentElement.dataset.theme) syncTheme();
+  });
 
   // 白天/黑夜：第一次点之前没有 data-theme，就先看系统当前是哪一边。
   document.getElementById("theme-toggle").addEventListener("click", function () {
     var root = document.documentElement;
-    var dark = root.dataset.theme
-      ? root.dataset.theme === "dark"
-      : matchMedia("(prefers-color-scheme: dark)").matches;
-    root.dataset.theme = dark ? "light" : "dark";
+    root.dataset.theme = isDark() ? "light" : "dark";
     try { localStorage.setItem("theme", root.dataset.theme); } catch (e) {}
+    syncTheme();
   });
 
   // contact 里的微信号：点一下复制。?. 兜底非安全上下文（file:// 直接打开 docs/ 时
@@ -95,6 +144,7 @@
   });
 </script>
 {{ if .HasShortcode "audio" }}<script src="{{ "js/player.js" | relURL }}" defer></script>{{ end }}
+<script src="{{ "js/terminal.js" | relURL }}" defer></script>
 {{ if or .IsHome .Params.ascii (eq .Kind "404") }}<script type="module" src="https://ascii.rest/ascii.js"></script>{{ end }}
 
 </body>

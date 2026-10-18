@@ -18,5 +18,17 @@
           crossorigin="anonymous"
           async>
   </script>
+  <script>
+    // giscus 在 client.js 执行时只读一次 data-theme。存了手动主题的人首屏会对不上，
+    // 所以在它下载完成前按当前实际主题把属性改掉。
+    (function () {
+      var root = document.documentElement;
+      var dark = root.dataset.theme
+        ? root.dataset.theme === "dark"
+        : matchMedia("(prefers-color-scheme: dark)").matches;
+      document.querySelector('script[src="https://giscus.app/client.js"]').dataset.theme =
+        dark ? "dark" : "fro";
+    })();
+  </script>
 </section>
 {{ end }}
