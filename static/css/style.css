@@ -40,7 +40,7 @@ body {
   -webkit-text-size-adjust: 100%;
 }
 
-/* 背景：极淡点阵，90 秒漂一格，固定在视口上不随内容滚动。
+/* 背景：极淡点阵，20 秒漂一格，固定在视口上不随内容滚动。
    body 的背景会传到 canvas，所以 ::before 用负 z-index 就落在底色之上、内容之下。
    inset 多给一格，向左下平移时才不会露出边。 */
 body::before {
@@ -49,16 +49,16 @@ body::before {
   inset: -24px;
   z-index: -1;
   pointer-events: none;
-  background-image: radial-gradient(circle, rgba(23, 25, 28, 0.12) 1px, transparent 1px);
+  background-image: radial-gradient(circle, rgba(23, 25, 28, 0.15) 1px, transparent 1px);
   background-size: 24px 24px;
-  animation: drift 90s linear infinite;
+  animation: drift 20s linear infinite;
 }
 :root[data-theme="dark"] body::before {
-  background-image: radial-gradient(circle, rgba(231, 231, 228, 0.09) 1px, transparent 1px);
+  background-image: radial-gradient(circle, rgba(231, 231, 228, 0.11) 1px, transparent 1px);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) body::before {
-    background-image: radial-gradient(circle, rgba(231, 231, 228, 0.09) 1px, transparent 1px);
+    background-image: radial-gradient(circle, rgba(231, 231, 228, 0.11) 1px, transparent 1px);
   }
 }
 /* 平移正好一格（24px），首尾图案重合，循环无缝 */
