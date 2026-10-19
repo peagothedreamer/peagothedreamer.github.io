@@ -2,7 +2,7 @@
   "id": "finance-news",
   "name": "Financial News",
   "display_names": {
-    "zh": "经济与美股"
+    "zh": "宏观与市场"
   },
   "match": "match.md",
   "analysis": "analysis.md",

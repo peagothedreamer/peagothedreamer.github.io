@@ -2,7 +2,7 @@
   "id": "tech-news",
   "name": "Technology News",
   "display_names": {
-    "zh": "科技与 AI"
+    "zh": "科技与产业"
   },
   "match": "match.md",
   "analysis": "analysis.md",
