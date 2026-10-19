@@ -1,0 +1,784 @@
+{
+  "ai": {
+    "provider": "deepseek",
+    "provider_chain": null,
+    "model": "deepseek-chat",
+    "base_url": null,
+    "api_key_env": "DEEPSEEK_API_KEY",
+    "temperature": 0.3,
+    "max_tokens": 8192,
+    "throttle_sec": 0.0,
+    "analysis_concurrency": 1,
+    "enrichment_concurrency": 1,
+    "languages": [
+      "zh"
+    ],
+    "azure_endpoint_env": null,
+    "api_version": null
+  },
+  "sources": {
+    "github": [
+      {
+        "type": "user_events",
+        "username": "torvalds",
+        "owner": null,
+        "repo": null,
+        "enabled": true,
+        "category": null,
+        "profile": "tech-news"
+      },
+      {
+        "type": "repo_releases",
+        "username": null,
+        "owner": "astral-sh",
+        "repo": "uv",
+        "enabled": true,
+        "category": null,
+        "profile": "tech-news"
+      },
+      {
+        "type": "repo_releases",
+        "username": null,
+        "owner": "vllm-project",
+        "repo": "vllm",
+        "enabled": true,
+        "category": null,
+        "profile": null
+      },
+      {
+        "type": "repo_releases",
+        "username": null,
+        "owner": "sgl-project",
+        "repo": "sglang",
+        "enabled": true,
+        "category": null,
+        "profile": null
+      },
+      {
+        "type": "user_events",
+        "username": "karpathy",
+        "owner": null,
+        "repo": null,
+        "enabled": true,
+        "category": null,
+        "profile": null
+      },
+      {
+        "type": "repo_releases",
+        "username": null,
+        "owner": "YD4223",
+        "repo": "aihub",
+        "enabled": true,
+        "category": null,
+        "profile": null
+      },
+      {
+        "type": "repo_releases",
+        "username": null,
+        "owner": "anthropics",
+        "repo": "claude-code",
+        "enabled": true,
+        "category": "ai-tools",
+        "profile": "tech-news"
+      },
+      {
+        "type": "repo_releases",
+        "username": null,
+        "owner": "modelcontextprotocol",
+        "repo": "servers",
+        "enabled": true,
+        "category": "ai-tools",
+        "profile": "tech-news"
+      }
+    ],
+    "hackernews": {
+      "enabled": true,
+      "fetch_top_stories": 20,
+      "min_score": 100,
+      "category": null,
+      "profile": "tech-news"
+    },
+    "rss": [
+      {
+        "name": "Simon Willison",
+        "url": "https://simonwillison.net/atom/everything/",
+        "enabled": true,
+        "category": "ai-tools",
+        "content_extractor": null,
+        "profile": "tech-news"
+      },
+      {
+        "name": "vLLM Blog",
+        "url": "https://vllm.ai/blog/rss.xml",
+        "enabled": true,
+        "category": "llm-inference",
+        "content_extractor": "trafilatura",
+        "profile": "tech-blog"
+      },
+      {
+        "name": "Sean Goedecke",
+        "url": "https://www.seangoedecke.com/rss.xml",
+        "enabled": true,
+        "category": "software-engineering",
+        "content_extractor": "trafilatura",
+        "profile": "tech-blog"
+      },
+      {
+        "name": "CNBC Finance",
+        "url": "https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=10000664",
+        "enabled": true,
+        "category": "finance",
+        "content_extractor": "trafilatura",
+        "profile": "finance-news"
+      },
+      {
+        "name": "NVIDIA CUDA Technical Blog",
+        "url": "https://developer.nvidia.com/blog/tag/cuda/feed/",
+        "enabled": true,
+        "category": "cuda",
+        "content_extractor": "trafilatura",
+        "profile": "tech-blog"
+      },
+      {
+        "name": "LWN.net (subscriber full-text)",
+        "url": "https://lwn.net/headlines/full_text?key=${LWN_KEY}",
+        "enabled": false,
+        "category": "linux",
+        "content_extractor": null,
+        "profile": "tech-news"
+      },
+      {
+        "name": "新智元",
+        "url": "https://wechat2rss.xlab.app/feed/ede30346413ea70dbef5d485ea5cbb95cca446e7.xml",
+        "enabled": true,
+        "category": "",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "Sebastian Raschka",
+        "url": "https://sebastianraschka.com/rss_feed.xml",
+        "enabled": true,
+        "category": "",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "量子位",
+        "url": "https://wechat2rss.xlab.app/feed/7131b577c61365cb47e81000738c10d872685908.xml",
+        "enabled": true,
+        "category": "",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "BAIR Blog",
+        "url": "https://bair.berkeley.edu/blog/feed.xml",
+        "enabled": true,
+        "category": "",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "Latent Space",
+        "url": "https://www.latent.space/feed",
+        "enabled": true,
+        "category": "",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "Interconnects",
+        "url": "https://www.interconnects.ai/feed",
+        "enabled": true,
+        "category": "",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "Machine Learning Mastery",
+        "url": "https://machinelearningmastery.com/feed/",
+        "enabled": true,
+        "category": "",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "The Batch",
+        "url": "https://www.deeplearning.ai/the-batch/feed/",
+        "enabled": true,
+        "category": "",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "The Gradient",
+        "url": "https://thegradient.pub/rss/",
+        "enabled": true,
+        "category": "",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "AI Weekly",
+        "url": "https://aiweekly.co/issues.rss",
+        "enabled": true,
+        "category": "",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "Ars Technica AI",
+        "url": "https://feeds.arstechnica.com/arstechnica/index",
+        "enabled": true,
+        "category": "",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "Anthropic Research",
+        "url": "https://www.anthropic.com/research/rss",
+        "enabled": false,
+        "category": "",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "Chip Huyen",
+        "url": "https://huyenchip.com/feed.xml",
+        "enabled": true,
+        "category": "",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "Jay Alammar",
+        "url": "https://jalammar.github.io/feed.xml",
+        "enabled": true,
+        "category": "",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "Ahead of AI (Sebastian Raschka)",
+        "url": "https://magazine.sebastianraschka.com/feed",
+        "enabled": true,
+        "category": "",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "OpenAI Blog",
+        "url": "https://openai.com/blog/rss.xml",
+        "enabled": true,
+        "category": "",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "Stanford AI Lab (SAIL) Blog",
+        "url": "https://ai.stanford.edu/blog/feed.xml",
+        "enabled": true,
+        "category": "",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "NVIDIA Developer Blog",
+        "url": "https://developer.nvidia.com/blog/feed",
+        "enabled": true,
+        "category": "",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "情報の灯台 / Joho no Todai",
+        "url": "https://joho-todai.com/pinterest-rss/",
+        "enabled": true,
+        "category": "",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "GitHub Blog AI/ML",
+        "url": "https://github.blog/ai-and-ml/feed/",
+        "enabled": true,
+        "category": "ai-tools",
+        "content_extractor": null,
+        "profile": "tech-news"
+      },
+      {
+        "name": "Tom's Hardware",
+        "url": "https://www.tomshardware.com/feeds/all",
+        "enabled": true,
+        "category": "semis",
+        "content_extractor": null,
+        "profile": "tech-news"
+      },
+      {
+        "name": "ServeTheHome",
+        "url": "https://www.servethehome.com/feed/",
+        "enabled": true,
+        "category": "ai-infra",
+        "content_extractor": null,
+        "profile": "tech-news"
+      },
+      {
+        "name": "Blocks & Files",
+        "url": "https://blocksandfiles.com/feed/",
+        "enabled": true,
+        "category": "memory",
+        "content_extractor": null,
+        "profile": "tech-news"
+      },
+      {
+        "name": "WSJ Markets",
+        "url": "https://feeds.a.dj.com/rss/RSSMarketsMain.xml",
+        "enabled": true,
+        "category": "finance",
+        "content_extractor": "trafilatura",
+        "profile": "finance-news"
+      },
+      {
+        "name": "MarketWatch Top Stories",
+        "url": "https://feeds.marketwatch.com/marketwatch/topstories/",
+        "enabled": true,
+        "category": "finance",
+        "content_extractor": "trafilatura",
+        "profile": "finance-news"
+      },
+      {
+        "name": "WSJ World News",
+        "url": "https://feeds.a.dj.com/rss/RSSWorldNews.xml",
+        "enabled": true,
+        "category": "politics",
+        "content_extractor": "trafilatura",
+        "profile": "finance-news"
+      },
+      {
+        "name": "NPR Politics",
+        "url": "https://feeds.npr.org/1014/rss.xml",
+        "enabled": true,
+        "category": "politics",
+        "content_extractor": "trafilatura",
+        "profile": "finance-news"
+      },
+      {
+        "name": "Politico Politics",
+        "url": "https://rss.politico.com/politics-news.xml",
+        "enabled": true,
+        "category": "politics",
+        "content_extractor": "trafilatura",
+        "profile": "finance-news"
+      }
+    ],
+    "reddit": {
+      "enabled": true,
+      "subreddits": [
+        {
+          "subreddit": "MachineLearning",
+          "enabled": true,
+          "sort": "hot",
+          "time_filter": "day",
+          "fetch_limit": 15,
+          "min_score": 50,
+          "category": null,
+          "profile": "tech-news"
+        },
+        {
+          "subreddit": "LocalLLaMA",
+          "enabled": true,
+          "sort": "hot",
+          "time_filter": "day",
+          "fetch_limit": 15,
+          "min_score": 60,
+          "category": null,
+          "profile": null
+        },
+        {
+          "subreddit": "StableDiffusion",
+          "enabled": true,
+          "sort": "hot",
+          "time_filter": "day",
+          "fetch_limit": 15,
+          "min_score": 60,
+          "category": null,
+          "profile": null
+        },
+        {
+          "subreddit": "artificial",
+          "enabled": true,
+          "sort": "hot",
+          "time_filter": "day",
+          "fetch_limit": 15,
+          "min_score": 60,
+          "category": null,
+          "profile": null
+        },
+        {
+          "subreddit": "ClaudeAI",
+          "enabled": true,
+          "sort": "hot",
+          "time_filter": "day",
+          "fetch_limit": 15,
+          "min_score": 20,
+          "category": "ai-tools",
+          "profile": "tech-news"
+        },
+        {
+          "subreddit": "hardware",
+          "enabled": true,
+          "sort": "hot",
+          "time_filter": "day",
+          "fetch_limit": 15,
+          "min_score": 50,
+          "category": "semis",
+          "profile": "tech-news"
+        },
+        {
+          "subreddit": "semiconductors",
+          "enabled": true,
+          "sort": "hot",
+          "time_filter": "day",
+          "fetch_limit": 15,
+          "min_score": 20,
+          "category": "semis",
+          "profile": "tech-news"
+        },
+        {
+          "subreddit": "NVDA_Stock",
+          "enabled": true,
+          "sort": "hot",
+          "time_filter": "day",
+          "fetch_limit": 15,
+          "min_score": 10,
+          "category": "ai-infra",
+          "profile": "finance-news"
+        },
+        {
+          "subreddit": "stocks",
+          "enabled": true,
+          "sort": "hot",
+          "time_filter": "day",
+          "fetch_limit": 15,
+          "min_score": 50,
+          "category": "finance",
+          "profile": "finance-news"
+        },
+        {
+          "subreddit": "economics",
+          "enabled": true,
+          "sort": "hot",
+          "time_filter": "day",
+          "fetch_limit": 15,
+          "min_score": 50,
+          "category": "macro",
+          "profile": "finance-news"
+        }
+      ],
+      "users": [
+        {
+          "username": "iamthatis",
+          "enabled": true,
+          "sort": "new",
+          "fetch_limit": 10,
+          "category": null,
+          "profile": "tech-news"
+        }
+      ],
+      "fetch_comments": 5
+    },
+    "telegram": {
+      "enabled": true,
+      "channels": [
+        {
+          "channel": "zaihuapd",
+          "enabled": true,
+          "fetch_limit": 20,
+          "category": null,
+          "profile": [
+            "tech-news",
+            "finance-news"
+          ]
+        }
+      ]
+    },
+    "twitter": {
+      "enabled": true,
+      "mode": "apify",
+      "users": [
+        "SemiAnalysis_",
+        "IanCutress",
+        "kopite7kimi",
+        "karpathy",
+        "NickTimiraos",
+        "DeItaone"
+      ],
+      "keywords": [
+        "HBM",
+        "Claude Code"
+      ],
+      "fetch_limit": 10,
+      "category": "social",
+      "profile": null,
+      "fetch_reply_text": false,
+      "max_replies_per_tweet": 3,
+      "max_tweets_to_expand": 10,
+      "reply_min_likes": 5,
+      "apify_token_env": "APIFY_TOKEN",
+      "actor_id": "altimis~scweet",
+      "cookie_dir": "data",
+      "cookie_file_pattern": "x_cookies_*.json"
+    },
+    "openbb": {
+      "enabled": false,
+      "watchlists": [
+        {
+          "name": "semis",
+          "symbols": [
+            "NVDA",
+            "AMD",
+            "INTC",
+            "TSM",
+            "ASML",
+            "AVGO",
+            "QCOM",
+            "ARM",
+            "MRVL",
+            "AMAT",
+            "LRCX",
+            "KLAC"
+          ],
+          "enabled": true,
+          "provider": "yfinance",
+          "fetch_limit": 20,
+          "category": "semis",
+          "profile": "finance-news"
+        },
+        {
+          "name": "memory",
+          "symbols": [
+            "MU",
+            "WDC",
+            "STX",
+            "SNDK"
+          ],
+          "enabled": true,
+          "provider": "yfinance",
+          "fetch_limit": 15,
+          "category": "memory",
+          "profile": "finance-news"
+        },
+        {
+          "name": "ai-infra",
+          "symbols": [
+            "SMCI",
+            "DELL",
+            "HPE",
+            "ANET",
+            "CRDO",
+            "ALAB",
+            "VRT",
+            "ETN",
+            "PWR",
+            "CEG",
+            "VST",
+            "NBIS",
+            "APLD",
+            "IREN",
+            "CRWV"
+          ],
+          "enabled": true,
+          "provider": "yfinance",
+          "fetch_limit": 20,
+          "category": "ai-infra",
+          "profile": "finance-news"
+        }
+      ],
+      "fetch_filings": false,
+      "filings_provider": "sec"
+    },
+    "ossinsight": {
+      "enabled": true,
+      "period": "past_24_hours",
+      "languages": [
+        "All",
+        "Python",
+        "TypeScript"
+      ],
+      "keywords": [
+        "agent",
+        "mcp",
+        "skill",
+        "llm",
+        "rag"
+      ],
+      "min_stars": 20,
+      "max_items": 20,
+      "category": "ai-tools",
+      "profile": "tech-news"
+    },
+    "gdelt": {
+      "enabled": true,
+      "query": "(semiconductor OR \"memory chip\" OR HBM OR DRAM OR NAND OR \"AI chip\")",
+      "mode": "ArtList",
+      "max_records": 75,
+      "timespan": null,
+      "language": "english",
+      "country": "US",
+      "category": "semis",
+      "profile": "finance-news"
+    },
+    "google_news": {
+      "enabled": true,
+      "query": "(\"Federal Reserve\" OR CPI OR inflation OR tariffs OR \"S&P 500\" OR Nasdaq OR \"Treasury yields\" OR \"jobs report\" OR \"US election\" OR Congress OR \"White House\")",
+      "language": "en",
+      "country": "US",
+      "ceid": null,
+      "max_results": 50,
+      "category": "macro",
+      "profile": "finance-news"
+    }
+  },
+  "collection": {
+    "time_window_hours": 24
+  },
+  "digest": {
+    "max_items": null,
+    "category_groups": {
+      "economy": {
+        "name": "Economy & US Markets",
+        "limit": 10,
+        "categories": [
+          "macro",
+          "finance",
+          "politics"
+        ]
+      },
+      "semis": {
+        "name": "Semiconductors & Memory",
+        "limit": 6,
+        "categories": [
+          "semis",
+          "memory"
+        ]
+      },
+      "ai-infra": {
+        "name": "AI Infrastructure",
+        "limit": 6,
+        "categories": [
+          "ai-infra"
+        ]
+      },
+      "ai-tools": {
+        "name": "AI Open Source & Skills",
+        "limit": 8,
+        "categories": [
+          "ai-tools",
+          "skills"
+        ]
+      },
+      "social": {
+        "name": "Social Signals",
+        "limit": 4,
+        "categories": [
+          "social"
+        ]
+      }
+    },
+    "default_group": "other",
+    "default_group_limit": 15,
+    "profile_order": [
+      "finance-news",
+      "tech-news",
+      "tech-blog"
+    ]
+  },
+  "processing": {
+    "profiles_dir": "profiles",
+    "default_profile": "tech-news",
+    "profile_settings": {
+      "tech-news": {
+        "threshold": 6.5,
+        "topic_dedup": true
+      },
+      "tech-blog": {
+        "threshold": 5.0,
+        "topic_dedup": false
+      },
+      "finance-news": {
+        "threshold": 5.5,
+        "topic_dedup": true
+      },
+      "ai-creator": {
+        "threshold": 6.5,
+        "topic_dedup": true
+      }
+    }
+  },
+  "display": {
+    "icon_style": "emoji"
+  },
+  "extractors": {},
+  "email": {
+    "imap_server": "imap.qq.com",
+    "imap_port": 993,
+    "imap_enabled": true,
+    "smtp_server": "smtp.qq.com",
+    "smtp_port": 465,
+    "smtp_username": null,
+    "email_address": "xxx@qq.com",
+    "password_env": "EMAIL_PASSWORD",
+    "sender_name": "Horizon Daily",
+    "subscribe_keyword": "SUBSCRIBE",
+    "unsubscribe_keyword": "UNSUBSCRIBE",
+    "enabled": false
+  },
+  "webhook": {
+    "url_env": "HORIZON_WEBHOOK_URL",
+    "request_body": {
+      "msg_type": "interactive",
+      "card": {
+        "schema": "2.0",
+        "config": {
+          "wide_screen_mode": true
+        },
+        "header": {
+          "title": {
+            "tag": "plain_text",
+            "content": "#{message_title}"
+          },
+          "template": "blue"
+        },
+        "body": {
+          "elements": [
+            {
+              "tag": "markdown",
+              "content": "Horizon生成结果: #{result}\nHorizon日报重要资讯数量: #{important_items}/#{all_items}"
+            },
+            {
+              "tag": "hr"
+            },
+            {
+              "tag": "markdown",
+              "content": "#{summary}"
+            }
+          ]
+        }
+      }
+    },
+    "headers": "",
+    "delivery": "summary",
+    "overview_position": "first",
+    "platform": "generic",
+    "layout": "markdown",
+    "fallback_layout": "markdown",
+    "languages": null,
+    "enabled": false
+  },
+  "wechat": {
+    "enabled": false,
+    "languages": null,
+    "chunk_size": 4000
+  }
+}

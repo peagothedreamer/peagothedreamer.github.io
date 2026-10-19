@@ -31,3 +31,7 @@ disableKinds = ['taxonomy', 'term']
   repoId = 'R_kgDOVMHt5A'
   category = 'Announcements'
   categoryId = 'DIC_kwDOVMHt5M4DIoie'
+
+# Horizon 简报里有 <details>、<a id> 等原生 HTML，必须放行。
+[markup.goldmark.renderer]
+  unsafe = true
