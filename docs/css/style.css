@@ -89,6 +89,9 @@ a:hover { text-decoration-color: currentColor; }
 }
 .nav ul a { color: var(--dim); text-decoration: none; }
 .nav ul a:hover { color: var(--fg); }
+.nav-gh { display: inline-flex; align-items: center; }
+.nav-gh svg { display: block; width: 1.0625rem; height: 1.0625rem; fill: currentColor; }
+@media (max-width: 34rem) { .nav ul { gap: 0.625rem; font-size: 0.875rem; } }
 
 /* 白天/黑夜：图标显示点下去会切到哪边——白天是月亮，黑夜是太阳。 */
 .theme-toggle {
