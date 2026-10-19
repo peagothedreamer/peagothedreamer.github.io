@@ -340,7 +340,7 @@ footer { padding-block: 2rem 3rem; color: var(--dim); font-size: 0.875rem; }
   padding: 0.1em 0.35em;
   background: rgba(127, 127, 127, 0.14);
 }
-.prose img { max-width: 100%; height: auto; }
+.prose img { max-width: 100%; height: auto; background: #fff; }
 .prose table { border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9375rem; }
 .prose th, .prose td {
   padding: 0.35rem 0.75rem;
