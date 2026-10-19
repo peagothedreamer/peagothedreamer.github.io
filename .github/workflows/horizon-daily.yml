@@ -1,0 +1,64 @@
+name: horizon-daily
+
+on:
+  schedule:
+    - cron: '45 12 * * *'   # 20:45 北京，排队后约 21:00 发布
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: horizon-daily
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - uses: astral-sh/setup-uv@v10
+
+      - name: Clone Horizon (pinned)
+        run: |
+          git clone https://github.com/Thysrael/Horizon.git "$RUNNER_TEMP/horizon"
+          git -C "$RUNNER_TEMP/horizon" checkout 0eda588fb0486a4b183bb3c613d6f20548514505
+          cp -r tools/horizon/profiles/. "$RUNNER_TEMP/horizon/profiles/"
+
+      - name: Run Horizon (24h)
+        working-directory: ${{ runner.temp }}/horizon
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cp "$GITHUB_WORKSPACE/tools/horizon/config.json" data/config.json
+          uv run horizon --hours 24
+
+      - name: Convert summary to Hugo content
+        run: python tools/horizon/publish.py "${{ runner.temp }}/horizon/data/summaries" content/digest
+
+      - uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: '0.168.0'
+          extended: true
+
+      - name: Build site
+        run: hugo --quiet
+
+      - name: Commit briefing and rebuilt site
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add content/digest docs
+          if git diff --cached --quiet; then
+            echo "no changes"
+          else
+            git commit -m "digest: $(date -u +%F) 简报"
+            git push
+          fi
