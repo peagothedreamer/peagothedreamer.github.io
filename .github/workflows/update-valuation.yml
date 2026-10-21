@@ -43,5 +43,6 @@ jobs:
             echo "no changes"
           else
             git commit -m "data: 更新估值快照 $(date -u +%F)"
+            git pull --rebase origin main   # 跑的过程中有人 push 过，先变基再推
             git push
           fi

@@ -85,5 +85,6 @@ jobs:
             echo "no changes"
           else
             git commit -m "digest: $(date -u +%F) 简报"
+            git pull --rebase origin main   # 跑的过程中有人 push 过，先变基再推
             git push
           fi
