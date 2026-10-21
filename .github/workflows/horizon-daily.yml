@@ -2,7 +2,11 @@ name: horizon-daily
 
 on:
   schedule:
-    - cron: '45 12 * * *'   # 20:45 北京，排队后约 21:00 发布
+    # GitHub 的 schedule 常延迟 2~5 小时甚至整体丢触发，所以多排几个候选点；
+    # gate job 保证当天只真正生成一次。
+    - cron: '45 9 * * *'    # 17:45 北京
+    - cron: '45 11 * * *'   # 19:45 北京
+    - cron: '45 13 * * *'   # 21:45 北京
   workflow_dispatch:
 
 permissions:
@@ -13,7 +17,24 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  gate:
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.check.outputs.skip }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: check
+        run: |
+          # 定时触发的迟到场次：当天简报已存在就直接跳过，省一次 20 分钟的 Horizon 调用。
+          if [ "${{ github.event_name }}" = "schedule" ] && [ -f "content/digest/$(date -u +%F).md" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
   publish:
+    needs: gate
+    if: needs.gate.outputs.skip != 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
