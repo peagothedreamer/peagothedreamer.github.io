@@ -27,6 +27,8 @@ jobs:
       skip: ${{ steps.check.outputs.skip }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main   # 排队期间别人可能已推送当天简报，必须看最新 main 而不是触发时的快照
       - id: check
         run: |
           # 当天简报已存在就跳过，省一次 20 分钟的 Horizon 调用；手动 force=true 可强制重跑。
@@ -42,6 +44,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
 
       - uses: actions/setup-python@v5
         with:
