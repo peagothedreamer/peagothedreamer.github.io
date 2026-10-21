@@ -2,12 +2,16 @@ name: horizon-daily
 
 on:
   schedule:
-    # GitHub 的 schedule 常延迟 2~5 小时甚至整体丢触发，所以多排几个候选点；
-    # gate job 保证当天只真正生成一次。
-    - cron: '45 9 * * *'    # 17:45 北京
-    - cron: '45 11 * * *'   # 19:45 北京
+    # 主路径是外部 cron 服务打 workflow_dispatch；GitHub 自带 schedule 延迟 2~5 小时
+    # 且会丢触发，只留两个晚间兜底，gate 保证当天不重复生成。
     - cron: '45 13 * * *'   # 21:45 北京
+    - cron: '45 15 * * *'   # 23:45 北京
   workflow_dispatch:
+    inputs:
+      force:
+        description: 当天简报已存在也重新生成
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -25,8 +29,8 @@ jobs:
       - uses: actions/checkout@v4
       - id: check
         run: |
-          # 定时触发的迟到场次：当天简报已存在就直接跳过，省一次 20 分钟的 Horizon 调用。
-          if [ "${{ github.event_name }}" = "schedule" ] && [ -f "content/digest/$(date -u +%F).md" ]; then
+          # 当天简报已存在就跳过，省一次 20 分钟的 Horizon 调用；手动 force=true 可强制重跑。
+          if [ "${{ inputs.force }}" != "true" ] && [ -f "content/digest/$(date -u +%F).md" ]; then
             echo "skip=true" >> "$GITHUB_OUTPUT"
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"
