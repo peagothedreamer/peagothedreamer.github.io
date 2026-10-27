@@ -1,7 +1,8 @@
 name: build
 
-# docs/ 是手工提交的构建产物。改了内容却忘了跑 hugo，线上就会是旧的；
-# 这里重新构建一遍，和仓库里的 docs/ 比对，不一致就失败并打出差异。
+# docs/ 是提交进仓库的构建产物，Pages 从 main:/docs 发布。
+# - PR：重新构建并比对，不一致就失败（提醒你在本地跑 hugo）。
+# - main / 手动触发：直接构建并把 docs/ 提交回去，编辑器提交文章后靠它上线。
 on:
   push:
     branches: [main]
@@ -18,10 +19,15 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
+
+# 编辑器连续提交（正文 + 图片）会排队跑，不要互相覆盖 docs/。
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
-  check:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -35,6 +41,7 @@ jobs:
         run: hugo --quiet
 
       - name: Check docs/ is current
+        if: github.event_name == 'pull_request'
         run: |
           # 用 git add -A 才能看见新建页面产生的未跟踪文件。
           git add -A -- docs
@@ -42,4 +49,18 @@ jobs:
             git diff --cached --stat -- docs
             echo "::error::docs/ 与源码不一致。请在本地跑 hugo，把 docs/ 一起提交。"
             exit 1
+          fi
+
+      - name: Commit rebuilt docs/
+        if: github.event_name != 'pull_request'
+        run: |
+          git add -A -- docs
+          if git diff --cached --quiet; then
+            echo "docs/ 无变化"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "ci: 重建 docs（${GITHUB_SHA::7}）"
+            git pull --rebase origin main   # 构建期间可能有人推送，先变基再推
+            git push
           fi
