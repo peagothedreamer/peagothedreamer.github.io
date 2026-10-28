@@ -6,14 +6,7 @@ date = 2026-10-27
 
 ## 下载安装
 
-**Windows 10/11**
-- [Elsewhere-Setup-0.3.1.exe](https://github.com/peagothedreamer/Elsewhere/releases/download/v0.3.1/Elsewhere-Setup-0.3.1.exe) 
-- [Elsewhere-0.3.1-portable.zip](https://github.com/peagothedreamer/Elsewhere/releases/download/v0.3.1/Elsewhere-0.3.1-portable.zip) 
-
-**macOS 14+（Apple Silicon）**
-- [下载 Elsewhere-0.3.1-arm64.dmg](https://github.com/peagothedreamer/Elsewhere/releases/download/v0.3.1/Elsewhere-0.3.1-arm64.dmg) — 打开后把 `Elsewhere.app` 拖进「应用程序」
-
-全部版本见 [Releases](https://github.com/peagothedreamer/Elsewhere/releases)。
+见 [Releases](https://github.com/peagothedreamer/Elsewhere/releases)。
 
 应用未签名：
 - Windows 首次运行可能提示「已保护你的电脑」：点「更多信息」→「仍要运行」。
