@@ -18,7 +18,7 @@ from urllib.parse import unquote
 ROOT = Path(__file__).resolve().parent
 HOST, PORT = '127.0.0.1', 8765
 API = 'https://api.github.com'
-SECTIONS = {'learning', 'investing', 'prattling', 'digest'}
+SECTIONS = {'learning', 'investing', 'prattling', 'horizon'}
 
 
 def gh_token():

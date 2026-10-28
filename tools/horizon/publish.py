@@ -1,4 +1,4 @@
-"""把 Horizon 当天的中文摘要转成 Hugo 的 content/digest/YYYY-MM-DD.md。"""
+"""把 Horizon 当天的中文摘要转成 Hugo 的 content/horizon/YYYY-MM-DD.md。"""
 import re
 import sys
 from pathlib import Path

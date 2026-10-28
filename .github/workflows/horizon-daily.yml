@@ -32,7 +32,7 @@ jobs:
       - id: check
         run: |
           # 当天简报已存在就跳过，省一次 20 分钟的 Horizon 调用；手动 force=true 可强制重跑。
-          if [ "${{ inputs.force }}" != "true" ] && [ -f "content/digest/$(date -u +%F).md" ]; then
+          if [ "${{ inputs.force }}" != "true" ] && [ -f "content/horizon/$(date -u +%F).md" ]; then
             echo "skip=true" >> "$GITHUB_OUTPUT"
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"
@@ -70,7 +70,7 @@ jobs:
           uv run horizon --hours 24
 
       - name: Convert summary to Hugo content
-        run: python tools/horizon/publish.py "${{ runner.temp }}/horizon/data/summaries" content/digest
+        run: python tools/horizon/publish.py "${{ runner.temp }}/horizon/data/summaries" content/horizon
 
       - uses: peaceiris/actions-hugo@v3
         with:
@@ -84,11 +84,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add content/digest docs
+          git add content/horizon docs
           if git diff --cached --quiet; then
             echo "no changes"
           else
-            git commit -m "digest: $(date -u +%F) 简报"
+            git commit -m "horizon: $(date -u +%F) 简报"
             git pull --rebase origin main   # 跑的过程中有人 push 过，先变基再推
             git push
           fi

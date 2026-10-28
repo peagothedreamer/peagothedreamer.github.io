@@ -64,9 +64,11 @@
 
 <footer>
   <div class="wrap">
+    {{/* 已经从 ascii.rest 生成好存进 static/banner/，不再依赖远端。
+         想换字/换 tagline 就去 ascii.rest 重新导一份覆盖掉这两个文件。 */}}
     <picture class="banner">
-      <source media="(prefers-color-scheme: dark)" srcset="https://ascii.rest/banner/peago.dark.svg?font=bold&tagline=the%20dreamer">
-      <img alt="peago — the dreamer" src="https://ascii.rest/banner/peago.svg?font=bold&tagline=the%20dreamer" width="690" height="216" loading="lazy" decoding="async">
+      <source media="(prefers-color-scheme: dark)" srcset="{{ "banner/peago.dark.svg" | relURL }}">
+      <img alt="peago — the dreamer" src="{{ "banner/peago.svg" | relURL }}" width="690" height="216" loading="lazy" decoding="async">
     </picture>
     <p class="copy">© <span id="year">2026</span> peago</p>
   </div>
@@ -83,7 +85,7 @@
 <template id="term-ls"><pre>.
 ├── <a href="{{ with site.GetPage "learning" }}{{ .RelPermalink }}{{ end }}">learning/</a>   学习 · 资源、笔记
 ├── <a href="{{ with site.GetPage "investing" }}{{ .RelPermalink }}{{ end }}">investing/</a>  投资 · 记录与复盘
-├── <a href="{{ with site.GetPage "digest" }}{{ .RelPermalink }}{{ end }}">digest/</a>     简报 · 每晚 9 点
+├── <a href="{{ with site.GetPage "horizon" }}{{ .RelPermalink }}{{ end }}">horizon/</a>    简报 · 每晚 9 点
 └── <a href="{{ with site.GetPage "prattling" }}{{ .RelPermalink }}{{ end }}">prattling/</a>  发电 · 空想家的自我修养</pre></template>
 
 <script>
@@ -130,12 +132,24 @@
     if (!document.documentElement.dataset.theme) syncTheme();
   });
 
+  // 手机浏览器地址栏跟着 <meta name="theme-color">。没手动选过时那两个 media
+  // 版本自己会切；手动选过就不一样了，得改成同一边，否则页面黑了、状态栏还是白的。
+  function syncThemeColor(dark) {
+    var c = dark ? "#0c0d0f" : "#fdfdfc";
+    document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) {
+      m.removeAttribute("media");
+      m.content = c;
+    });
+  }
+  if (document.documentElement.dataset.theme) syncThemeColor(isDark());
+
   // 白天/黑夜：第一次点之前没有 data-theme，就先看系统当前是哪一边。
   document.getElementById("theme-toggle").addEventListener("click", function () {
     var root = document.documentElement;
     root.dataset.theme = isDark() ? "light" : "dark";
     try { localStorage.setItem("theme", root.dataset.theme); } catch (e) {}
     syncTheme();
+    syncThemeColor(root.dataset.theme === "dark");
   });
 
   // contact 里的微信号：点一下复制。?. 兜底非安全上下文（file:// 直接打开 docs/ 时
