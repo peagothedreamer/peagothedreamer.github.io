@@ -1,0 +1,231 @@
+{{ define "main" }}
+<div class="wrap">
+  <article class="page yq">
+    <h1 class="page-title">{{ .Title }}</h1>
+    {{ with .Params.subtitle }}<p class="page-subtitle">{{ . }}</p>{{ end }}
+
+    <div class="yq-panes">
+      <section class="yq-pane">
+        <textarea id="yq-src" placeholder="粘贴文本" spellcheck="false" aria-label="原文"></textarea>
+      </section>
+
+      <section class="yq-pane">
+        <div class="yq-bar">
+          <span class="yq-count" id="yq-count"></span>
+          <button type="button" id="yq-copy" disabled>复制</button>
+        </div>
+        <div class="yq-out" id="yq-out" aria-live="polite"></div>
+      </section>
+    </div>
+
+    <p class="back"><a href="{{ .CurrentSection.RelPermalink }}">← {{ .CurrentSection.Title }}</a></p>
+  </article>
+</div>
+
+<style>
+  /* 配色和字体全部用站点的变量，这里只补版面。 */
+  .yq { --line: rgba(127, 127, 127, 0.3); --line-soft: rgba(127, 127, 127, 0.18); }
+  .yq .page-subtitle { margin-bottom: 0; }
+
+  .yq-panes {
+    display: grid;
+    grid-template-rows: minmax(10rem, 1fr) minmax(10rem, 1fr);
+    gap: 0.75rem;
+    height: clamp(26rem, 64vh, 42rem);
+    margin: 2rem 0 0;
+  }
+
+  .yq-pane {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    border: 1px solid var(--line);
+  }
+  .yq-pane:focus-within { border-color: var(--dim); }
+
+  .yq-pane textarea {
+    flex: 1;
+    width: 100%;
+    padding: 1rem 1.125rem;
+    border: 0;
+    outline: 0;
+    resize: none;
+    background: none;
+    color: inherit;
+    font: inherit;
+    font-size: 0.9375rem;
+    line-height: 1.75;
+  }
+  .yq-pane textarea::placeholder { color: var(--dim); }
+
+  .yq-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .yq-count {
+    margin-right: auto;
+    padding-left: 0.25rem;
+    color: var(--dim);
+    font-size: 0.8125rem;
+  }
+
+  .yq-bar button {
+    padding: 0.2rem 0.9rem;
+    border: 1px solid var(--line);
+    background: none;
+    color: var(--fg);
+    font: inherit;
+    font-size: 0.8125rem;
+    cursor: pointer;
+  }
+  .yq-bar button:hover:not(:disabled) { border-color: var(--fg); }
+  .yq-bar button:disabled { color: var(--dim); border-color: var(--line-soft); cursor: default; }
+
+  .yq-out {
+    flex: 1;
+    overflow: auto;
+    padding: 1rem 1.125rem;
+    font-size: 0.9375rem;
+    line-height: 1.75;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  /* 标记不改样式：浏览器默认给 <mark> 加黄底，这里还原成正文。 */
+  .yq-out mark { background: none; color: inherit; }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.29.5/dist/index.js"
+  onerror="this.onerror=null;this.src='https://registry.npmmirror.com/pinyin-pro/3.29.5/files/dist/index.js';"
+  onload="window.__yqRender && window.__yqRender()"></script>
+<script>
+  const MARK = '【已编辑】';
+  const ZH = /[一-鿿]/;
+  const isLatin = c => /[a-zA-Z]/.test(c);
+
+  const src = document.getElementById('yq-src');
+  const out = document.getElementById('yq-out');
+  const countEl = document.getElementById('yq-count');
+  const copyBtn = document.getElementById('yq-copy');
+  let plainOut = '';
+
+  // Split by sentence: pinyin-pro mis-segments words in long texts that end with
+  // certain characters (e.g. 乐器 -> lè instead of yuè), and the whole text flips.
+  function initialsOf(text, chars) {
+    const lib = window.pinyinPro;
+    if (!lib) return null;
+    const out = [];
+    try {
+      for (const chunk of text.split(/(?<=[。！？；\n])/)) {
+        const n = Array.from(chunk).length;
+        let arr = lib.pinyin(chunk, { pattern: 'first', toneType: 'none', type: 'array' });
+        if (!Array.isArray(arr) || arr.length !== n) {
+          arr = Array.from(chunk).map(c => lib.pinyin(c, { pattern: 'first', toneType: 'none' }));
+        }
+        if (!Array.isArray(arr) || arr.length !== n) return null;
+        for (const s of arr) out.push(String(s).toLowerCase());
+      }
+    } catch (e) { return null; }
+    return out.length === chars.length ? out : null;
+  }
+
+  // Greedy left-to-right: "玉泉硬气" -> 【已编辑】【已编辑】; overlapping pairs are not consumed twice.
+  function transform(text) {
+    const chars = Array.from(text);
+    const ini = initialsOf(text, chars);
+    if (chars.length && !ini) return { parts: [], count: 0, error: '拼音库加载失败，请联网后刷新。' };
+
+    const letter = i => {
+      const c = chars[i];
+      if (isLatin(c)) return c.toLowerCase();
+      return ZH.test(c) ? ini[i] : '';
+    };
+
+    const parts = [];
+    let count = 0;
+    for (let i = 0; i < chars.length; i++) {
+      if (i + 1 < chars.length
+          && isLatin(chars[i]) === isLatin(chars[i + 1])
+          && letter(i) + letter(i + 1) === 'yq') {
+        parts.push(null); // null = marker
+        count++;
+        i++;
+      } else {
+        parts.push(chars[i]);
+      }
+    }
+    return { parts, count };
+  }
+
+  function render() {
+    const { parts, count, error } = transform(src.value);
+    if (error) {
+      out.textContent = error;
+      plainOut = '';
+      countEl.textContent = '';
+      copyBtn.disabled = true;
+      return;
+    }
+    const frag = document.createDocumentFragment();
+    let plain = '';
+    for (const p of parts) {
+      if (p === null) {
+        const m = document.createElement('mark');
+        m.textContent = MARK;
+        frag.append(m);
+        plain += MARK;
+      } else {
+        frag.append(p);
+        plain += p;
+      }
+    }
+    out.replaceChildren(frag);
+    plainOut = plain;
+    countEl.textContent = count ? count + ' 处' : '';
+    copyBtn.disabled = count === 0;
+  }
+
+  window.__yqRender = render;
+
+  copyBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(plainOut);
+    } catch (e) {
+      const ta = document.createElement('textarea');
+      ta.value = plainOut;
+      document.body.append(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+    copyBtn.textContent = '已复制';
+    setTimeout(() => copyBtn.textContent = '复制', 1200);
+  });
+
+  let timer;
+  src.addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = setTimeout(render, 80);
+  });
+
+  // Open with ?test to run the built-in check (results in devtools console).
+  function selftest() {
+    const cases = [
+      ['玉泉', 1], ['硬气', 1], ['yq', 1], ['YQ', 1], ['玉泉硬气', 2],
+      ['长江', 0], ['银行', 0], ['abc yq def', 1], ['玉 q', 0], ['玉泉yq', 2]
+    ];
+    let ok = true;
+    for (const [text, want] of cases) {
+      const got = transform(text).count;
+      if (got !== want) { ok = false; console.error('selftest FAIL', text, got, '!=', want); }
+    }
+    console.log(ok ? 'selftest PASS' : 'selftest FAIL');
+  }
+
+  render();
+  if (location.search.includes('test')) selftest();
+</script>
+{{ end }}
