@@ -8,9 +8,11 @@
           "Sarasa Mono SC", "Noto Sans Mono CJK SC", "Microsoft YaHei Mono",
           "Microsoft YaHei", monospace;
   /* 文章正文的衬线。没有 webfont：拉丁取系统衬线（Win 上是 Georgia），
-     中文由系统补衬线字（Win 上是 SimSun/宋体）。所以不同系统看到的不完全
-     一样，这是取舍。 */
-  --serif: ui-serif, "Georgia", "Cambria", "Times New Roman", "Times", serif;
+     中文按字回退到系统宋体（mac 是 Songti SC，Win 是 SimSun）。所以不同
+     系统看到的不完全一样，这是取舍。
+     Georgia 放最前：它没有中文字形，拉丁从它来、中文继续往下找。 */
+  --serif: "Georgia", "Times New Roman", "Songti SC", "STSong",
+           "Noto Serif SC", "Source Han Serif SC", "SimSun", serif;
   --measure: 46rem;
   --pad: 1.5rem;
 }
@@ -120,6 +122,9 @@ h1 {
   line-height: 0.95;
   letter-spacing: -0.035em;
 }
+/* 0.95 的行高把 g 的降部裁到行框外面，下一行的「the dreamer.」会顶上来。
+   补一截按字号缩放的下边距，把降部还回去。 */
+.hero h1 { padding-bottom: 0.12em; }
 .cn {
   margin: 0.5rem 0 0;
   color: var(--dim);
@@ -137,6 +142,9 @@ h1 {
 .art { overflow: hidden; margin-top: clamp(2rem, 7vh, 3.5rem); }
 /* planet-scale is a coloured piece: it fills the tag's width, so give it one. */
 .art ascii-art { display: block; width: 100%; aspect-ratio: 2 / 1; background: #050505; }
+/* 黑色底只是等 ascii.rest 的画布上菜前的占位。脚本没加载上（被墙、离线、CDN 挂了）
+   自定义元素就一直是 undefined，这时别留一块黑板。 */
+.art ascii-art:not(:defined) { background: none; }
 
 /* sections */
 section { padding-block: 2.5rem; scroll-margin-top: 4rem; }
@@ -185,6 +193,12 @@ section p { margin: 0 0 0.25rem; max-width: 34em; }
 }
 .contact dt { color: var(--dim); }
 .contact dd { margin: 0; }
+/* 窄屏：[github.com/peagothedreamer] 比可用宽度还长，两栏会把整页撑出横向滚动条。
+   小屏改成标签在上、值在下。 */
+@media (max-width: 30rem) {
+  .contact { grid-template-columns: 1fr; }
+  .contact dt:not(:first-of-type) { margin-top: 0.75rem; }
+}
 
 /* 微信号：点一下复制。看着跟隔壁两个链接一样，语义上是按钮。
    类名避开 .copy —— 那是页脚版权的。 */
@@ -310,7 +324,8 @@ footer { padding-block: 2rem 3rem; color: var(--dim); font-size: 0.875rem; }
 .prose h2, .prose h3, .prose h4 { scroll-margin-top: 6rem; }
 
 /* article body —— 正文用衬线，界面和 ASCII 装饰仍归等宽 */
-.prose { max-width: 38em; font-family: var(--serif); overflow-wrap: anywhere; }
+/* 中文正文 17px 起才不显瘦（SimSun 在 16px 下笔画发虚），行高也放一点。 */
+.prose { max-width: 38em; font-family: var(--serif); font-size: 1.0625rem; line-height: 1.85; overflow-wrap: anywhere; }
 .prose > :first-child { margin-top: 0; }
 .prose > :last-child { margin-bottom: 0; }
 .prose h2 {
