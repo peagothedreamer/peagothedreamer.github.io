@@ -292,7 +292,8 @@ footer { padding-block: 2rem 3rem; color: var(--dim); font-size: 0.875rem; }
   letter-spacing: -0.02em;
 }
 .page-subtitle { margin: -0.75rem 0 0; color: var(--dim); font-size: 1.0625rem; line-height: 1.6; }
-.meta { margin: 0 0 2.5rem; color: var(--dim); font-size: 0.875rem; }
+/* 日期是数据，用等宽数字，列表里上下才对得齐 */
+.meta { margin: 0 0 2.5rem; color: var(--dim); font-size: 0.875rem; font-variant-numeric: tabular-nums; }
 .meta .tags::before { content: " · "; }
 
 /* 文章顶部的 md 目录（Hugo 按 h2/h3 生成），折叠 + 吸顶 */
@@ -328,14 +329,20 @@ footer { padding-block: 2rem 3rem; color: var(--dim); font-size: 0.875rem; }
 .prose { max-width: 38em; font-family: var(--serif); font-size: 1.0625rem; line-height: 1.85; overflow-wrap: anywhere; }
 .prose > :first-child { margin-top: 0; }
 .prose > :last-child { margin-bottom: 0; }
+/* 章节标题要比正文明显大一档：原来跟正文同号，长文里看不出分章。 */
 .prose h2 {
-  margin: 2.75rem 0 1rem;
+  margin: 3rem 0 1rem;
   color: var(--fg);
-  font-size: 1.0625rem;
+  font-size: 1.3125rem;
   font-weight: 600;
+  line-height: 1.4;
   letter-spacing: 0;
 }
-.prose h3 { margin: 2rem 0 0.75rem; font-size: 1rem; font-weight: 600; }
+.prose h3 { margin: 2rem 0 0.75rem; font-size: 1.125rem; font-weight: 600; line-height: 1.45; }
+
+/* 标题避免末行孤字；正文避免最后一行只剩一个词 */
+h1, .page-title, .prose h2, .prose h3, .prose h4 { text-wrap: balance; }
+.prose p, .prose li, section p { text-wrap: pretty; }
 .prose ul, .prose ol { margin: 1rem 0; padding-left: 2ch; }
 .prose li { margin: 0.3rem 0; }
 .prose blockquote {
@@ -379,7 +386,7 @@ footer { padding-block: 2rem 3rem; color: var(--dim); font-size: 0.875rem; }
 }
 .posts a { text-decoration: none; }
 .posts a:hover { text-decoration: underline; }
-.posts time { color: var(--dim); font-size: 0.8125rem; white-space: nowrap; }
+.posts time { color: var(--dim); font-size: 0.8125rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .posts .empty { justify-content: flex-start; color: var(--dim); }
 
 .back { margin: 3rem 0 0; font-size: 0.9375rem; }
@@ -515,6 +522,64 @@ footer { padding-block: 2rem 3rem; color: var(--dim); font-size: 0.875rem; }
 @media (max-width: 30rem) {
   .prose .player { grid-template-columns: 4rem 1fr; gap: 0.75rem; padding: 0.6rem; }
   .player .time { font-size: 0.6875rem; }
+}
+
+/* ---- 首页 PC 版：把 46rem 的单栏铺满整个视口 ---- */
+/* 窄屏保持原样。这里的所有改动只在 >=64rem 生效。 */
+@media (min-width: 64rem) {
+  /* 导航、正文、页脚一起放宽——宽正文配窄导航会显得断层 */
+  body.home .wrap { max-width: 88rem; }
+
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    align-items: start;
+    gap: clamp(2rem, 4vw, 4.5rem);
+    padding-block: 0 clamp(2.5rem, 5vh, 3.5rem);
+  }
+  .hero h1 { font-size: clamp(5rem, 8.5vw, 9.5rem); }
+  .art { margin-top: 0; }
+
+  /* 三条横线原本是 80 个「─」字符，宽度写死。放宽后改用 1px 实线，
+     视觉跟连成完整的字符线一样，但能跟着容器走。 */
+  body.home .rule {
+    height: 1px;
+    background: currentColor;
+    font-size: 0;
+  }
+
+  .band {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) minmax(0, 1.4fr);
+    gap: clamp(2rem, 4vw, 4.5rem);
+  }
+  .band > .rule { display: none; }   /* 三栏并排时不需要竖着切的分隔线 */
+  .band section { padding-block: 3rem; }
+  /* 三栏并排后各行要对齐：about 与 contact 的行距是 32px，目录树原本只有 28px */
+  .band .tree li + li { margin-top: 0.25rem; }
+
+  /* 评论按正文行宽居中，别拉成一行 1300px */
+  body.home .comments { max-width: var(--measure); margin-inline: auto; }
+
+  /* 页脚跟导航呼应：字标在左，版权在右 */
+  body.home footer .wrap {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+  /* 宽度挂在 <picture> 上：img 的 100% 直接指向 picture，会自己绕成循环。
+     picture 是 flex 项，100% 相对 .wrap，能正常解析。 */
+  body.home .banner { width: min(100%, 480px); }
+  body.home .banner img { width: 100%; }
+}
+
+/* 64–76rem：三栏放得下，但 projects 里「发电 · 空想家的自我修养」会被挤成两行。
+   这一档把说明挪到目录名下面，行不会断在半个词上。 */
+@media (min-width: 64rem) and (max-width: 75.99rem) {
+  .tree li { grid-template-columns: minmax(0, 1fr); row-gap: 0.1rem; }
+  .tree li + li { margin-top: 0.35rem; }
+  .tree .note { padding-left: 4ch; }
 }
 
 /* giscus comments — article pages + homepage */

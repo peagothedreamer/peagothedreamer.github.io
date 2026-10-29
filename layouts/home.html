@@ -2,9 +2,11 @@
 <main class="wrap">
 
   <section class="hero">
-    <h1>peago</h1>
-    <p class="cn">the dreamer.</p>
-    <p class="tagline">空想家<span class="cursor" aria-hidden="true">█</span></p>
+    <div class="hero-id">
+      <h1>peago</h1>
+      <p class="cn">the dreamer.</p>
+      <p class="tagline">空想家<span class="cursor" aria-hidden="true">█</span></p>
+    </div>
     <div class="art">
       <ascii-art piece="planet-scale" fps="15" aria-hidden="true"></ascii-art>
     </div>
@@ -12,39 +14,41 @@
 
   <div class="rule" aria-hidden="true">────────────────────────────────────────────────────────────────────────────────</div>
 
-  <section id="about">
-    <h2>about</h2>
-    <p>浙江大学 电子科学与技术</p>
-    <p>想着能再多做会梦</p>
-    <p>卧室流行和 R&B 重度患者</p>
-  </section>
+  <div class="band">
+    <section id="about">
+      <h2>about</h2>
+      <p>浙江大学 电子科学与技术</p>
+      <p>想着能再多做会梦</p>
+      <p>卧室流行和 R&B 重度患者</p>
+    </section>
 
-  <div class="rule" aria-hidden="true">────────────────────────────────────────────────────────────────────────────────</div>
+    <div class="rule" aria-hidden="true">────────────────────────────────────────────────────────────────────────────────</div>
 
-  <section id="projects">
-    <h2>projects</h2>
-    <pre class="tree-root" aria-hidden="true">.</pre>
-    <ul class="tree">
-      <li><a class="br" href="{{ with site.GetPage "learning" }}{{ .RelPermalink }}{{ end }}">├── learning/</a><span class="note">学习 · 资源、笔记</span></li>
-      <li><a class="br" href="{{ with site.GetPage "investing" }}{{ .RelPermalink }}{{ end }}">├── investing/</a><span class="note">投资 · 记录与复盘</span></li>
-      <li><a class="br" href="{{ with site.GetPage "horizon" }}{{ .RelPermalink }}{{ end }}">├── horizon/</a><span class="note">简报 · 每晚 9 点</span></li>
-      <li><a class="br" href="{{ with site.GetPage "prattling" }}{{ .RelPermalink }}{{ end }}">└── prattling/</a><span class="note">发电 · 空想家的自我修养</span></li>
-    </ul>
-  </section>
+    <section id="projects">
+      <h2>projects</h2>
+      <pre class="tree-root" aria-hidden="true">.</pre>
+      <ul class="tree">
+        <li><a class="br" href="{{ with site.GetPage "learning" }}{{ .RelPermalink }}{{ end }}">├── learning/</a><span class="note">学习 · 资源、笔记</span></li>
+        <li><a class="br" href="{{ with site.GetPage "investing" }}{{ .RelPermalink }}{{ end }}">├── investing/</a><span class="note">投资 · 记录与复盘</span></li>
+        <li><a class="br" href="{{ with site.GetPage "horizon" }}{{ .RelPermalink }}{{ end }}">├── horizon/</a><span class="note">简报 · 每晚 9 点</span></li>
+        <li><a class="br" href="{{ with site.GetPage "prattling" }}{{ .RelPermalink }}{{ end }}">└── prattling/</a><span class="note">发电 · 空想家的自我修养</span></li>
+      </ul>
+    </section>
 
-  <div class="rule" aria-hidden="true">────────────────────────────────────────────────────────────────────────────────</div>
+    <div class="rule" aria-hidden="true">────────────────────────────────────────────────────────────────────────────────</div>
 
-  <section id="contact">
-    <h2>contact</h2>
-    <dl class="contact">
-      <dt>email</dt>
-      <dd><a href="mailto:peago@foxmail.com">[peago@foxmail.com]</a></dd>
-      <dt>github</dt>
-      <dd><a href="https://github.com/peagothedreamer">[github.com/peagothedreamer]</a></dd>
-      <dt>wechat</dt>
-      <dd><button type="button" class="copy-id" data-copy="peagothedreamer" title="复制微信号">peagothedreamer</button></dd>
-    </dl>
-  </section>
+    <section id="contact">
+      <h2>contact</h2>
+      <dl class="contact">
+        <dt>email</dt>
+        <dd><a href="mailto:peago@foxmail.com">[peago@foxmail.com]</a></dd>
+        <dt>github</dt>
+        <dd><a href="https://github.com/peagothedreamer">[github.com/peagothedreamer]</a></dd>
+        <dt>wechat</dt>
+        <dd><button type="button" class="copy-id" data-copy="peagothedreamer" title="复制微信号">peagothedreamer</button></dd>
+      </dl>
+    </section>
+  </div>
 
   <div class="rule" aria-hidden="true">────────────────────────────────────────────────────────────────────────────────</div>
 
