@@ -1,0 +1,682 @@
+{{ define "main" }}
+<div class="wrap">
+  <article class="page calc">
+    <h1 class="page-title">频域复数计算器</h1>
+    <p class="page-subtitle">相量运算 · 直角坐标 ↔ 极坐标 · 实时求值</p>
+
+    <div class="calc-top">
+      <label class="calc-label" for="expr">表达式</label>
+      <div class="calc-units" role="group" aria-label="角度单位">
+        <button type="button" data-unit="deg" class="active" aria-pressed="true">deg</button>
+        <button type="button" data-unit="rad" aria-pressed="false">rad</button>
+      </div>
+    </div>
+
+    <input id="expr" class="calc-input" type="text" inputmode="text" spellcheck="false" autocomplete="off"
+           autocapitalize="off" placeholder="例如：(3+4j) * 2∠30°" aria-describedby="syntax" />
+
+    <div class="calc-keys" aria-label="快捷输入">
+      <button type="button" data-insert="j" aria-label="插入虚数单位 j">j</button>
+      <button type="button" data-insert="∠" aria-label="插入极坐标符号">∠</button>
+      <button type="button" data-insert="(" aria-label="插入左括号">(</button>
+      <button type="button" data-insert=")" aria-label="插入右括号">)</button>
+      <button type="button" data-insert="conj()" data-caret="1" aria-label="插入共轭函数">conj()</button>
+      <button type="button" data-insert="^" aria-label="插入乘方">^</button>
+      <button type="button" class="plain" data-action="backspace" aria-label="退格">退格</button>
+      <button type="button" class="plain" data-action="clear" aria-label="清空表达式">清空</button>
+    </div>
+
+    <p class="calc-hint" id="syntax">
+      支持 <code>+ - * / ^</code>、<code>j</code>、<code>conj()</code>；极坐标写作 <code>5∠30</code>，键盘也可写
+      <code>5&lt;30</code> 或 <code>5@30</code>；角度后缀 <code>°</code> / <code>deg</code> / <code>rad</code>
+      优先于上方单位开关。
+    </p>
+
+    <div class="calc-error" id="error" role="alert"></div>
+
+    <div class="calc-results" aria-live="polite">
+      <button type="button" class="calc-result" id="rect" title="点击复制直角坐标">
+        <span class="calc-tag"><span>直角坐标 a + bj</span><span class="copy">点击复制</span></span>
+        <span class="calc-val empty" id="rectVal">—</span>
+      </button>
+      <button type="button" class="calc-result" id="polar" title="点击复制极坐标">
+        <span class="calc-tag"><span>极坐标 r ∠ θ</span><span class="copy">点击复制</span></span>
+        <span class="calc-val empty" id="polarVal">—</span>
+      </button>
+    </div>
+
+    <p class="calc-foot">
+      <span>幂指数仅支持整数；结果保留 6 位有效数字。</span>
+      <span>本地计算</span>
+    </p>
+
+    <p class="back"><a href="{{ .CurrentSection.RelPermalink }}">← {{ .CurrentSection.Title }}</a></p>
+  </article>
+</div>
+
+<div id="toast" class="calc-toast" role="status" aria-live="polite"></div>
+
+<style>
+  /* 计算器只用站点已有的配色与等宽字体栈；这里只补它自己的排版。 */
+  .calc { --line: rgba(127, 127, 127, 0.3); --line-soft: rgba(127, 127, 127, 0.18); }
+  .calc .page-subtitle { margin-bottom: 0; }
+
+  .calc-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 2.5rem 0 0;
+  }
+  .calc-label {
+    color: var(--dim);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+  }
+
+  .calc-units { display: flex; border: 1px solid var(--line); }
+  .calc-units button {
+    padding: 0.3rem 0.8rem;
+    border: 0;
+    background: none;
+    color: var(--dim);
+    font: inherit;
+    font-size: 0.8125rem;
+    cursor: pointer;
+  }
+  .calc-units button + button { border-left: 1px solid var(--line); }
+  .calc-units button:hover { color: var(--fg); }
+  .calc-units button.active { background: rgba(127, 127, 127, 0.14); color: var(--fg); }
+
+  .calc-input {
+    width: 100%;
+    margin: 0.5rem 0 0;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid var(--line);
+    background: none;
+    color: var(--fg);
+    font-family: var(--mono);
+    font-size: clamp(1.125rem, 3vw, 1.375rem);
+    line-height: 1.4;
+  }
+  .calc-input::placeholder { color: var(--dim); opacity: 0.7; }
+  .calc-input:focus {
+    border-color: var(--fg);
+    outline: 2px solid var(--fg);
+    outline-offset: 1px;
+  }
+  .calc-input[aria-invalid="true"] { border-color: var(--fg); border-style: dashed; }
+
+  .calc-keys { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.6rem; }
+  .calc-keys button {
+    padding: 0.3rem 0.7rem;
+    border: 1px solid var(--line-soft);
+    background: none;
+    color: var(--fg);
+    font: inherit;
+    font-family: var(--mono);
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+  .calc-keys button:hover { border-color: var(--dim); }
+  .calc-keys button.plain { color: var(--dim); }
+
+  .calc-hint {
+    margin: 1.25rem 0 0;
+    color: var(--dim);
+    font-size: 0.8125rem;
+    line-height: 1.75;
+  }
+  .calc-hint code {
+    padding: 0.05em 0.3em;
+    background: rgba(127, 127, 127, 0.14);
+    font-family: var(--mono);
+    font-size: 0.96em;
+  }
+
+  .calc-error { min-height: 1.5rem; margin-top: 0.5rem; color: var(--fg); font-size: 0.875rem; line-height: 1.5; }
+  .calc-error:not(:empty)::before { content: "! "; }
+
+  .calc-results {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 0.75rem;
+    border: 1px solid var(--line);
+  }
+  .calc-result {
+    appearance: none;
+    display: block;
+    min-height: 6.5rem;
+    padding: 1rem 1.1rem;
+    border: 0;
+    background: none;
+    color: var(--fg);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .calc-result + .calc-result { border-left: 1px solid var(--line); }
+  .calc-result:hover { background: rgba(127, 127, 127, 0.07); }
+  .calc-tag {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1ch;
+    color: var(--dim);
+    font-size: 0.75rem;
+  }
+  .calc-tag .copy { white-space: nowrap; opacity: 0.7; }
+  .calc-result:hover .copy, .calc-result:focus-visible .copy { opacity: 1; color: var(--fg); }
+  .calc-val {
+    display: block;
+    margin-top: 0.85rem;
+    font-family: var(--mono);
+    font-size: clamp(1.25rem, 3.3vw, 1.5rem);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+  .calc-val.empty { color: var(--dim); }
+
+  .calc-foot {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0.75rem 0 0;
+    color: var(--dim);
+    font-size: 0.75rem;
+  }
+
+  .calc-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 2rem;
+    z-index: 9;
+    padding: 0.4rem 0.9rem;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    color: var(--fg);
+    font-size: 0.8125rem;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, 0.5rem);
+    transition: opacity 0.18s, transform 0.18s;
+  }
+  .calc-toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  @media (max-width: 34rem) {
+    .calc-results { grid-template-columns: 1fr; }
+    .calc-result { min-height: 5.5rem; }
+    .calc-result + .calc-result { border-left: 0; border-top: 1px solid var(--line); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .calc *, .calc-toast { transition: none !important; }
+  }
+</style>
+
+<script>
+(() => {
+  'use strict';
+
+  const exprEl = document.getElementById('expr');
+  const errorEl = document.getElementById('error');
+  const rectVal = document.getElementById('rectVal');
+  const polarVal = document.getElementById('polarVal');
+  const rectBtn = document.getElementById('rect');
+  const polarBtn = document.getElementById('polar');
+  const toastEl = document.getElementById('toast');
+  const unitButtons = Array.from(document.querySelectorAll('.calc-units button'));
+
+  let unit = 'deg';
+  let clip = { rect: '', polar: '' };
+  let toastTimer = 0;
+
+  /* ---------- 复数基础运算 ---------- */
+  const add = (a, b) => ({ re: a.re + b.re, im: a.im + b.im });
+  const neg = a => ({ re: -a.re, im: -a.im });
+  const mul = (a, b) => ({
+    re: a.re * b.re - a.im * b.im,
+    im: a.re * b.im + a.im * b.re
+  });
+
+  function div(a, b) {
+    const d = b.re * b.re + b.im * b.im;
+    if (d === 0) throw new Error('除数不能为 0');
+    if (!Number.isFinite(d)) throw new Error('结果超出数值范围');
+    return {
+      re: (a.re * b.re + a.im * b.im) / d,
+      im: (a.im * b.re - a.re * b.im) / d
+    };
+  }
+
+  function cpow(base, exponent) {
+    if (Math.abs(exponent.im) > 1e-10) throw new Error('幂指数必须是实数');
+    const n = exponent.re;
+    if (!Number.isFinite(n)) throw new Error('幂指数超出数值范围');
+    if (Math.abs(n - Math.round(n)) > 1e-10) throw new Error('幂指数必须是整数');
+    const k = Math.round(n);
+    if (k === 0) return { re: 1, im: 0 };
+    if (base.re === 0 && base.im === 0) {
+      if (k < 0) throw new Error('0 不能取负数次幂');
+      return { re: 0, im: 0 };
+    }
+    let acc = { re: 1, im: 0 };
+    let b = base;
+    let e = Math.abs(k);
+    while (e > 0) {
+      if (e % 2 === 1) acc = mul(acc, b);
+      b = mul(b, b);
+      e = Math.floor(e / 2);
+    }
+    if (!Number.isFinite(acc.re) || !Number.isFinite(acc.im)) throw new Error('结果超出数值范围');
+    return k < 0 ? div({ re: 1, im: 0 }, acc) : acc;
+  }
+
+  /* ---------- 词法 ---------- */
+  function normalize(raw) {
+    return raw
+      .replace(/[！-～]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0))
+      .replace(/[−]/g, '-')
+      .replace(/[×✕]/g, '*')
+      .replace(/[÷]/g, '/');
+  }
+
+  function tokenize(raw) {
+    const src = normalize(raw);
+    const out = [];
+    let i = 0;
+    while (i < src.length) {
+      const c = src[i];
+      if (/\s/.test(c)) { i++; continue; }
+
+      if (/[0-9.]/.test(c)) {
+        const m = /^(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?/.exec(src.slice(i));
+        if (!m) throw new Error('数字格式不正确');
+        out.push({ t: 'num', v: Number(m[0]) });
+        i += m[0].length;
+        continue;
+      }
+      if (c === '∠' || c === '<' || c === '@') { out.push({ t: 'polar' }); i++; continue; }
+      if (c === '°') { out.push({ t: 'unit', v: 'deg' }); i++; continue; }
+      if ('+-*/^()'.includes(c)) { out.push({ t: c }); i++; continue; }
+      if (/[A-Za-z]/.test(c)) {
+        const m = /^[A-Za-z]+/.exec(src.slice(i));
+        const word = m[0].toLowerCase();
+        if (word === 'j') out.push({ t: 'j' });
+        else if (word === 'conj') out.push({ t: 'conj' });
+        else if (word === 'deg') out.push({ t: 'unit', v: 'deg' });
+        else if (word === 'rad') out.push({ t: 'unit', v: 'rad' });
+        else throw new Error(`无法识别：${m[0]}`);
+        i += m[0].length;
+        continue;
+      }
+      throw new Error(`无法识别的字符：${c}`);
+    }
+    out.push({ t: 'end' });
+    return out;
+  }
+
+  /* ---------- 语法：递归下降 ---------- */
+  function parse(raw) {
+    const toks = tokenize(raw);
+    let pos = 0;
+    const peek = () => toks[pos];
+    const next = () => toks[pos++];
+
+    function parseExpr() {
+      let v = parseTerm();
+      for (;;) {
+        const t = peek().t;
+        if (t !== '+' && t !== '-') break;
+        pos++;
+        const r = parseTerm();
+        v = t === '+' ? add(v, r) : add(v, neg(r));
+      }
+      return v;
+    }
+
+    function parseTerm() {
+      let v = parseUnary();
+      for (;;) {
+        const t = peek().t;
+        if (t === '*' || t === '/') {
+          pos++;
+          const r = parseUnary();
+          v = t === '*' ? mul(v, r) : div(v, r);
+        } else if (t === 'num' || t === 'j' || t === 'conj' || t === '(') {
+          const r = parseUnary();
+          v = mul(v, r);
+        } else {
+          break;
+        }
+      }
+      return v;
+    }
+
+    function parseUnary() {
+      const t = peek().t;
+      if (t === '+') { pos++; return parseUnary(); }
+      if (t === '-') { pos++; return neg(parseUnary()); }
+      return parsePower();
+    }
+
+    function parsePower() {
+      const base = parsePostfix();
+      if (peek().t === '^') {
+        pos++;
+        const exponent = parseUnary();
+        return cpow(base, exponent);
+      }
+      return base;
+    }
+
+    function parsePostfix() {
+      let v = parsePrimary();
+      while (peek().t === 'polar') {
+        pos++;
+        const angle = parseAngle();
+        if (Math.abs(v.im) > 1e-10) throw new Error('极坐标的模必须是实数');
+        v = { re: v.re * Math.cos(angle), im: v.re * Math.sin(angle) };
+      }
+      return v;
+    }
+
+    function parseAngle() {
+      let sign = 1;
+      if (peek().t === '+') pos++;
+      else if (peek().t === '-') { pos++; sign = -1; }
+      const base = parsePrimary();
+      if (Math.abs(base.im) > 1e-10) throw new Error('角度必须是实数');
+      let suffix = null;
+      if (peek().t === 'unit') suffix = next().v;
+      const value = sign * base.re;
+      if (!Number.isFinite(value)) throw new Error('角度超出数值范围');
+      const useDeg = suffix ? suffix === 'deg' : unit === 'deg';
+      return useDeg ? value * Math.PI / 180 : value;
+    }
+
+    function parsePrimary() {
+      const t = next();
+      switch (t.t) {
+        case 'num': return { re: t.v, im: 0 };
+        case 'j': return { re: 0, im: 1 };
+        case '(': {
+          const v = parseExpr();
+          if (peek().t !== ')') throw new Error('括号不匹配');
+          next();
+          return v;
+        }
+        case 'conj': {
+          if (peek().t !== '(') throw new Error('conj 后需要括号');
+          next();
+          const v = parseExpr();
+          if (peek().t !== ')') throw new Error('括号不匹配');
+          next();
+          return { re: v.re, im: -v.im };
+        }
+        case 'end': throw new Error('表达式不完整');
+        case ')': throw new Error('括号不匹配或缺少操作数');
+        case 'polar': throw new Error('极坐标符号 ∠ 前缺少模');
+        case 'unit': throw new Error('角度单位只能紧跟在极坐标角度后');
+        default: throw new Error('表达式无法解析');
+      }
+    }
+
+    const value = parseExpr();
+    const rest = peek();
+    if (rest.t !== 'end') {
+      if (rest.t === ')') throw new Error('括号不匹配');
+      if (rest.t === 'unit') throw new Error('角度单位只能紧跟在极坐标角度后');
+      throw new Error('表达式中存在多余内容');
+    }
+    if (!Number.isFinite(value.re) || !Number.isFinite(value.im)) {
+      throw new Error('结果超出数值范围');
+    }
+    return value;
+  }
+
+  /* ---------- 显示格式 ---------- */
+  function snap(c) {
+    const scale = Math.max(1, Math.abs(c.re), Math.abs(c.im));
+    const eps = 1e-12 * scale;
+    return {
+      re: Math.abs(c.re) <= eps ? 0 : c.re,
+      im: Math.abs(c.im) <= eps ? 0 : c.im
+    };
+  }
+
+  function trimSci(s) {
+    let [m, e] = s.split('e');
+    m = m.replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '');
+    const n = Number(e);
+    return m + 'e' + (n >= 0 ? '+' : '') + n;
+  }
+
+  function fmt(x) {
+    if (!Number.isFinite(x)) throw new Error('结果超出数值范围');
+    if (x === 0) return '0';
+    const ax = Math.abs(x);
+    if (ax >= 1e6 || ax < 1e-4) return trimSci(x.toExponential(5));
+    let s = x.toPrecision(6);
+    if (s.includes('e')) return trimSci(s);
+    if (s.includes('.')) s = s.replace(/0+$/, '').replace(/\.$/, '');
+    return s;
+  }
+
+  function rectText(c) {
+    const { re, im } = snap(c);
+    if (im === 0) return fmt(re);
+    const imText = fmt(Math.abs(im)) + 'j';
+    if (re === 0) return (im < 0 ? '-' : '') + imText;
+    return fmt(re) + (im < 0 ? ' - ' : ' + ') + imText;
+  }
+
+  function polarText(c) {
+    const { re, im } = snap(c);
+    const r = Math.hypot(re, im);
+    let theta = Math.atan2(im, re);
+    if (theta <= -Math.PI) theta += 2 * Math.PI;
+    if (unit === 'deg') {
+      let deg = theta * 180 / Math.PI;
+      if (deg <= -180) deg += 360;
+      if (Math.abs(deg) < 1e-12) deg = 0;
+      return fmt(r) + '∠' + fmt(deg) + '°';
+    }
+    if (Math.abs(theta) < 1e-12) theta = 0;
+    return fmt(r) + '∠' + fmt(theta) + ' rad';
+  }
+
+  /* ---------- 界面状态 ---------- */
+  function clearResults() {
+    clip = { rect: '', polar: '' };
+    rectVal.textContent = '—';
+    polarVal.textContent = '—';
+    rectVal.classList.add('empty');
+    polarVal.classList.add('empty');
+  }
+
+  function render(value) {
+    clip = { rect: rectText(value), polar: polarText(value) };
+    rectVal.textContent = clip.rect;
+    polarVal.textContent = clip.polar;
+    rectVal.classList.remove('empty');
+    polarVal.classList.remove('empty');
+  }
+
+  function evaluate() {
+    const src = exprEl.value.trim();
+    errorEl.textContent = '';
+    exprEl.removeAttribute('aria-invalid');
+    if (!src) {
+      clearResults();
+      return;
+    }
+    try {
+      const value = parse(src);
+      render(value);
+    } catch (err) {
+      clearResults();
+      errorEl.textContent = err instanceof Error ? err.message : '表达式无法解析';
+      exprEl.setAttribute('aria-invalid', 'true');
+    }
+  }
+
+  function setUnit(nextUnit) {
+    unit = nextUnit;
+    unitButtons.forEach(btn => {
+      const on = btn.dataset.unit === unit;
+      btn.classList.toggle('active', on);
+      btn.setAttribute('aria-pressed', String(on));
+    });
+    evaluate();
+  }
+
+  function selection() {
+    if (document.activeElement !== exprEl) {
+      const end = exprEl.value.length;
+      return [end, end];
+    }
+    const start = exprEl.selectionStart ?? exprEl.value.length;
+    const end = exprEl.selectionEnd ?? start;
+    return [start, end];
+  }
+
+  function insertText(text, caretBack = 0) {
+    const [start, end] = selection();
+    exprEl.focus();
+    exprEl.setRangeText(text, start, end, 'end');
+    const caret = start + text.length - caretBack;
+    exprEl.setSelectionRange(caret, caret);
+    evaluate();
+  }
+
+  function backspace() {
+    const [start, end] = selection();
+    exprEl.focus();
+    if (start !== end) {
+      exprEl.setRangeText('', start, end, 'end');
+    } else if (start > 0) {
+      exprEl.setRangeText('', start - 1, start, 'end');
+    }
+    evaluate();
+  }
+
+  function legacyCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:-1000px;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { /* ignore */ }
+    ta.remove();
+    return ok;
+  }
+
+  function showToast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 1600);
+  }
+
+  function copyValue(text, label) {
+    if (!text) return;
+    const done = () => showToast('已复制' + label);
+    const fallback = () => {
+      if (legacyCopy(text)) done();
+      else showToast('复制失败');
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(done, fallback);
+    } else {
+      fallback();
+    }
+  }
+
+  /* ---------- 事件绑定 ---------- */
+  exprEl.addEventListener('input', evaluate);
+
+  unitButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (unit !== btn.dataset.unit) setUnit(btn.dataset.unit);
+    });
+  });
+
+  document.querySelectorAll('.calc-keys button').forEach(btn => {
+    btn.addEventListener('mousedown', e => e.preventDefault());
+  });
+
+  document.querySelectorAll('[data-insert]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      insertText(btn.dataset.insert, Number(btn.dataset.caret || 0));
+    });
+  });
+
+  document.querySelector('[data-action="backspace"]').addEventListener('click', backspace);
+  document.querySelector('[data-action="clear"]').addEventListener('click', () => {
+    exprEl.value = '';
+    exprEl.focus();
+    evaluate();
+  });
+
+  rectBtn.addEventListener('click', () => copyValue(clip.rect, '直角坐标'));
+  polarBtn.addEventListener('click', () => copyValue(clip.polar, '极坐标'));
+
+  evaluate();
+
+  /* ---------- 浏览器内自检：打开 ?test=1 时运行 ---------- */
+  function selfTest() {
+    const savedUnit = unit;
+    const cases = [];
+    const near = (a, b) => Math.abs(a - b) < 1e-9;
+    const checkParse = (name, src, re, im) => {
+      try {
+        const z = parse(src);
+        cases.push({ name, pass: near(z.re, re) && near(z.im, im) });
+      } catch (e) {
+        cases.push({ name, pass: false, error: e.message });
+      }
+    };
+
+    unit = 'deg';
+    checkParse('直角坐标', '3+4j', 3, 4);
+    checkParse('四则混合', '(3+4j)*(2-3j)', 18, -1);
+    checkParse('除法', '10/(2+j)', 4, -2);
+    checkParse('极坐标 @', '5@30', 5 * Math.cos(Math.PI / 6), 2.5);
+    checkParse('极坐标 <', '5<30', 5 * Math.cos(Math.PI / 6), 2.5);
+    checkParse('共轭', 'conj(3-4j)', 3, 4);
+    checkParse('整数幂', '(1+j)^3', -2, 2);
+
+    unit = 'rad';
+    checkParse('单位后缀', '5∠30°', 5 * Math.cos(Math.PI / 6), 2.5);
+
+    unit = 'deg';
+    cases.push({
+      name: '显示格式',
+      pass: rectText({ re: 3, im: 4 }) === '3 + 4j' &&
+            rectText({ re: 0, im: 4 }) === '4j' &&
+            polarText({ re: 5, im: 0 }) === '5∠0°'
+    });
+
+    for (const [name, src] of [['除零报错', '1/(1+j-1-j)'], ['非整数幂报错', '2^0.5']]) {
+      let blocked = false;
+      try { parse(src); } catch (e) { blocked = true; }
+      cases.push({ name, pass: blocked });
+    }
+
+    unit = savedUnit;
+    const pass = cases.every(c => c.pass);
+    window.__selfTest = { pass, cases };
+    (pass ? console.log : console.error)('频域复数计算器 self-test ' + (pass ? 'PASS' : 'FAIL'), cases);
+    if (!pass) document.title = 'SELFTEST FAIL — 频域复数计算器';
+  }
+
+  if (new URLSearchParams(location.search).has('test')) selfTest();
+})();
+</script>
+{{ end }}
