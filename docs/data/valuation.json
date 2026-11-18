@@ -1,84 +1,84 @@
 {
-  "asOf": "2026-11-16",
+  "asOf": "2026-11-17",
   "close": "美股收盘",
-  "generatedAt": "2026-11-17T04:30:18+00:00",
+  "generatedAt": "2026-11-18T03:43:06+00:00",
   "valuation": {
-    "ttmPE": 25.3,
-    "ttmPEAsOf": "2026-11-16",
+    "ttmPE": 25.04,
+    "ttmPEAsOf": "2026-11-17",
     "ttmPESource": "multpl.com",
     "forwardEpsGrowth": 0.1,
-    "tenYearYield": 5.12,
-    "tenYearAsOf": "2026-11-16"
+    "tenYearYield": 5.1,
+    "tenYearAsOf": "2026-11-17"
   },
   "sentiment": {
-    "fearGreed": 31,
+    "fearGreed": 25,
     "rating": "fear",
-    "asOf": "2026-11-16",
+    "asOf": "2026-11-17",
     "source": "CNN"
   },
   "windows": {
     "1": {
       "spx": {
-        "price": 7416.59,
-        "deviation": -5.6,
-        "percentile": 7
+        "price": 7340.53,
+        "deviation": -6.5,
+        "percentile": 5
       },
       "ndx": {
-        "price": 27197.15,
-        "deviation": -11.4,
+        "price": 27001.79,
+        "deviation": -11.9,
         "percentile": 2
       },
       "vix": {
-        "value": 22.91,
-        "percentile": 89
+        "value": 25.46,
+        "percentile": 94
       }
     },
     "3": {
       "spx": {
-        "price": 7416.59,
-        "deviation": -5.5,
-        "percentile": 9
+        "price": 7340.53,
+        "deviation": -6.5,
+        "percentile": 6
       },
       "ndx": {
-        "price": 27197.15,
-        "deviation": -9.9,
-        "percentile": 5
+        "price": 27001.79,
+        "deviation": -10.5,
+        "percentile": 4
       },
       "vix": {
-        "value": 22.91,
-        "percentile": 91
+        "value": 25.46,
+        "percentile": 95
       }
     },
     "5": {
       "spx": {
-        "price": 7416.59,
-        "deviation": -2.0,
-        "percentile": 40
+        "price": 7340.53,
+        "deviation": -3.1,
+        "percentile": 35
       },
       "ndx": {
-        "price": 27197.15,
-        "deviation": -7.3,
-        "percentile": 22
+        "price": 27001.79,
+        "deviation": -8.1,
+        "percentile": 19
       },
       "vix": {
-        "value": 22.91,
-        "percentile": 80
+        "value": 25.46,
+        "percentile": 86
       }
     },
     "10": {
       "spx": {
-        "price": 7416.59,
-        "deviation": 3.5,
-        "percentile": 62
+        "price": 7340.53,
+        "deviation": 2.4,
+        "percentile": 55
       },
       "ndx": {
-        "price": 27197.15,
-        "deviation": -4.9,
-        "percentile": 32
+        "price": 27001.79,
+        "deviation": -5.6,
+        "percentile": 29
       },
       "vix": {
-        "value": 22.91,
-        "percentile": 80
+        "value": 25.46,
+        "percentile": 86
       }
     }
   }
