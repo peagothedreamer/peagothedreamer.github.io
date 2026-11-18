@@ -1,0 +1,20 @@
++++
+title = 'eelab1-report-workflow：电子电路设计实验 I 的报告工作流'
+date = 2026-11-18
++++
+
+> 仓库：[peagothedreamer/eelab1-report-workflow](https://github.com/peagothedreamer/eelab1-report-workflow)
+
+浙江大学《电子电路设计实验 I》共有 7 次实验。仓库把课程讲义、LaTeX 模板、7 份已完成的预习提纲和实验目录放在同一棵目录树中，并附带 Claude Code 与 Codex 的工作规则。
+
+仓库的主要内容包括：
+
+- 讲义与前言 PPT：实验目的、任务、评分权重和提交规则。
+- 报告模板：十节结构的 LaTeX 模板，沿用 CC BY-SA 4.0 许可。
+- 实验目录：预习提纲、报告骨架、数据、图、脚本和归档目录。
+- `reference/`：供使用者放入参考报告的空目录，内容不进入版本库。
+- `init.ps1`：从本机系统字体复制宋体与楷体，并注入模板使用的思源宋体 Bold。
+
+个人信息、实验日期、地点和指导教师不预置。首次使用时对 AI 助手说「初始化」，助手询问姓名、学号、同组和专业并写入全部报告；日期、地点和指导教师在做对应实验时确认。字体、实测数据和参考报告不随仓库分发。
+
+仓库地址：https://github.com/peagothedreamer/eelab1-report-workflow
