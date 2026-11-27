@@ -1,7 +1,7 @@
 {
   "asOf": "2026-11-25",
   "close": "美股收盘",
-  "generatedAt": "2026-11-26T04:10:20+00:00",
+  "generatedAt": "2026-11-27T04:17:03+00:00",
   "valuation": {
     "ttmPE": 23.55,
     "ttmPEAsOf": "2026-11-20",
@@ -13,7 +13,7 @@
   "sentiment": {
     "fearGreed": 15,
     "rating": "extreme fear",
-    "asOf": "2026-11-25",
+    "asOf": "2026-11-26",
     "source": "CNN"
   },
   "windows": {
@@ -29,8 +29,8 @@
         "percentile": 1
       },
       "vix": {
-        "value": 28.29,
-        "percentile": 98
+        "value": 26.8,
+        "percentile": 96
       }
     },
     "3": {
@@ -45,8 +45,8 @@
         "percentile": 2
       },
       "vix": {
-        "value": 28.29,
-        "percentile": 97
+        "value": 26.8,
+        "percentile": 96
       }
     },
     "5": {
@@ -61,8 +61,8 @@
         "percentile": 12
       },
       "vix": {
-        "value": 28.29,
-        "percentile": 92
+        "value": 26.8,
+        "percentile": 89
       }
     },
     "10": {
@@ -77,8 +77,8 @@
         "percentile": 17
       },
       "vix": {
-        "value": 28.29,
-        "percentile": 92
+        "value": 26.8,
+        "percentile": 89
       }
     }
   }
